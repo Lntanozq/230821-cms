@@ -1,0 +1,224 @@
+package com.briup.cms.service.impl;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.briup.cms.bean.Article;
+import com.briup.cms.bean.Category;
+import com.briup.cms.bean.Comment;
+import com.briup.cms.bean.extend.ArticleExtend;
+import com.briup.cms.bean.vo.ArticleParam;
+import com.briup.cms.dao.ArticleDao;
+import com.briup.cms.dao.CategoryDao;
+import com.briup.cms.dao.CommentDao;
+import com.briup.cms.dao.UserDao;
+import com.briup.cms.exception.ServiceException;
+import com.briup.cms.service.IArticleService;
+import com.briup.cms.util.JwtUtil;
+import com.briup.cms.util.ResultCode;
+import io.jsonwebtoken.Claims;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author shaoyb
+ * @program: 230314-cms
+ * @description TODO
+ * @create 2023/3/19 21:31
+ **/
+@Service
+public class ArticleServiceImpl implements IArticleService {
+    @Autowired
+    private ArticleDao articleDao;
+    @Autowired
+    private UserDao userDao;
+    @Autowired
+    private CategoryDao categoryDao;
+    @Autowired
+    private CommentDao commentDao;
+
+    public static String getToken() {
+        // 第二种方式获取token
+        ServletRequestAttributes requestAttributes =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = requestAttributes.getRequest();
+
+        return request.getHeader("token");
+    }
+
+    @Override
+    public void saveOrUpdate(Article article) {
+        // 1.参数判断
+        if(article == null){
+            throw new ServiceException(ResultCode.PARAM_IS_BLANK);
+        }
+
+        // 2.用户判断：如果用户不存在，则抛异常
+        Long userId = article.getUserId();
+        if(userId != null && userDao.selectById(userId) == null) {
+            throw new ServiceException(ResultCode.USER_NOT_EXIST);
+        }
+
+        // 3.栏目判断：如果栏目不存在，或栏目不是2级栏目，则抛异常
+        Integer categoryId = article.getCategoryId();
+        if(categoryId != null) {
+            Category category = categoryDao.selectById(categoryId);
+            if(category == null || category.getParentId() == null)
+                throw new ServiceException(ResultCode.CATEGORY_NOT_EXIST);
+        }
+
+        Long id = article.getId();
+        if(id == null) {
+            // 4.新增操作
+            // 准备文章发表时间
+            article.setPublishTime(LocalDateTime.now());
+
+            // 新增文章
+            articleDao.insert(article);
+        }else {
+            // 5.修改操作
+            // 判断文章id是否存在
+            Article oldArticle = articleDao.selectById(id);
+            if(oldArticle == null)
+                throw new ServiceException(ResultCode.ARTICLE_NOT_EXIST);
+
+            String token = getToken();
+
+            // 文章状态判断：如果文章已经发表，普通用户不能再修改其标题、内容等信息
+            Map<String, Object> info = JwtUtil.parseJWT(token);
+            Integer roleId = (Integer) info.get("roleId");
+            //System.out.println("roleId: " + roleId);
+            if(roleId == 3 && "审核通过".equals(oldArticle.getStatus()))
+                throw new ServiceException(ResultCode.PARAM_IS_INVALID);
+
+            // 修改文章
+            articleDao.updateById(article);
+        }
+    }
+
+    @Override
+    public void reviewArticle(Long id, String status) {
+        // 1.参数判断
+        if(id == null || status == null)
+            throw new ServiceException(ResultCode.PARAM_IS_BLANK);
+
+        // 2.文章必须存在
+        if(articleDao.selectById(id) == null)
+            throw new ServiceException(ResultCode.ARTICLE_NOT_EXIST);
+
+        // 3.修改文章审核状态
+        Article article = new Article();
+        article.setId(id);
+        article.setStatus(status);
+        articleDao.updateById(article);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        // 1.参数判断，必须存在且有效
+        if(id == null || articleDao.selectById(id) == null)
+            throw new ServiceException(ResultCode.PARAM_IS_INVALID);
+
+        // 2.删除文章
+        articleDao.deleteById(id);
+    }
+
+    @Override
+    public void deleteInBatch(List<Long> ids) {
+        // 1.参数判断
+        if(ids == null || ids.size() == 0)
+            throw new ServiceException(ResultCode.PARAM_IS_BLANK);
+
+        // 2.执行批量删除，只要成功删除1条，就算成功，一条都没有删除掉，算失败
+        int num = articleDao.deleteBatchIds(ids);
+        //System.out.println("num: " + num);
+
+        if(num == 0)
+            throw new ServiceException(ResultCode.PARAM_IS_INVALID);
+    }
+
+    @Override
+    public ArticleExtend queryByIdWithComments(Long id) {
+        // 1.参数判断
+        if(id == null)
+            throw new ServiceException(ResultCode.PARAM_IS_BLANK);
+
+        // 2.先查询文章表，后续查询一级评论表
+        Article article = articleDao.selectById(id);
+        if(article == null)
+            throw new ServiceException(ResultCode.ARTICLE_NOT_EXIST);
+
+        // 3.判断文章审核状态是否为”审核通过“，如果不是则不能查看
+        if(!"审核通过".equals(article.getStatus()))
+            throw new ServiceException(ResultCode.ARTICLE_IS_NOT_VISIBLE);
+
+        // 4.判断文章的发表人是否存在，如果不存在，则无法查看该文章
+        Long userId = article.getUserId();
+        if(userDao.selectById(userId) == null)
+            throw new ServiceException(ResultCode.USER_NOT_EXIST);
+
+        // 5.判断当前用户是否能查看当前文章
+        //  获取token，进而获取userId及isVip
+        String token = getToken();
+        Long currUserId = Long.parseLong(JwtUtil.getUserId(token));
+        // 获取当前登录账户的isVip值
+        Integer isVip = userDao.selectById(currUserId).getIsVip();
+
+        // bug: 用户充值成为vip以后，要重新登录，更新token中isVip值
+        //Map<String, Object> map = JwtUtil.getInfo(token);
+        //Integer isVip = (Integer) map.get("isVip");
+
+        // 如果当前用户不是文章的拥有者，同时文章收费，当前用户还不是Vip，查看失败
+        // 注意：Long值比较使用 equals方法进行
+        if(!currUserId.equals(article.getUserId()) && article.getCharged() == 1 && isVip == 0) {
+            throw new ServiceException(ResultCode.ARTICLE_IS_NOT_VISIBLE);
+        }
+
+        // 6.复制文章对象属性 到 扩展类对象中
+        ArticleExtend articleExtend = new ArticleExtend();
+        BeanUtils.copyProperties(article, articleExtend);
+
+        // 7.根据文章id查询一级评论，按发表时间倒序，取最近3条
+        LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper();
+        wrapper.eq(Comment::getArticleId, id)
+            .orderByDesc(Comment::getPublishTime)
+            .last("limit 3");
+        List<Comment> comments = commentDao.selectList(wrapper);
+
+        // 8.填入查询到的一级评论到扩展类对象中
+        articleExtend.setComments(comments);
+
+        return articleExtend;
+    }
+
+    @Override
+    public IPage<Article> query(ArticleParam param) {
+        Page<Article> page = new Page<>(param.getPageNum(), param.getPageSize());
+
+        // 准备查询条件
+        LambdaQueryWrapper<Article> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(param.getUserId() != null, Article::getUserId, param.getUserId());
+        wrapper.eq(param.getStatus() != null, Article::getStatus, param.getStatus());
+        wrapper.like(param.getTitle() != null, Article::getTitle, param.getTitle());
+        wrapper.eq(param.getCharged() != null, Article::getCharged, param.getCharged());
+        wrapper.eq(param.getCategoryId() != null, Article::getCategoryId, param.getCategoryId());
+
+        //注意： "endTime": "2023-03-20T17:18:52" 才可以！！！
+        wrapper.le(param.getEndTime() != null, Article::getPublishTime, param.getEndTime());
+        wrapper.ge(param.getStartTime() != null, Article::getPublishTime, param.getStartTime());
+        //wrapper.between(Article::getPublishTime, param.getStartTime(), param.getEndTime());
+
+        //执行查询
+        articleDao.selectPage(page, wrapper);
+
+        return page;
+    }
+}
