@@ -26,17 +26,20 @@ public class ReadNumTask {
     // 5分钟运行一次
     @Scheduled(cron = "0 0/5 * * * ?")
     public void saveReadNum(){
-        System.out.println(111);
         //获取
         try{
+            //遍历redis当中拿到的map集合
             Map<Object, Object> article_read_num = redisUtil.getHash(READ_NUM);
             Set<Map.Entry<Object, Object>> entries = article_read_num.entrySet();
             for (Map.Entry<Object, Object> entry : entries) {
+                //获取key（文章id）
                 Long articleId = Long.valueOf(entry.getKey().toString());
+                //获取value（阅读量）
                 Integer readNum = Integer.valueOf(entry.getValue().toString());
                 Article article = new Article();
                 article.setId(articleId);
                 article.setReadNum(readNum);
+                //更新
                 articleDao.updateById(article);
             }
             log.info("阅读量更新入库完毕");
