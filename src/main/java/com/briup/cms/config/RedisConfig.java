@@ -34,6 +34,8 @@ public class RedisConfig {
 
         RedisTemplate<String, Object> template = new RedisTemplate<>();
 
+        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+
         //创建一个字符串序列化器对象，用于将字符串类型的数据转换成二进制格式存储到Redis中。
         RedisSerializer<String> redisSerializer = new StringRedisSerializer();
 
@@ -61,8 +63,9 @@ public class RedisConfig {
         //value序列化,将ObjectMapper对象设置为JSON序列化器的属性访问器。
         template.setValueSerializer(jackson2JsonRedisSerializer);
 
-        //value hashmap序列化,将ObjectMapper对象设置为JSON序列化器的属性访问器。
+        template.setHashKeySerializer(stringRedisSerializer);
         template.setHashValueSerializer(jackson2JsonRedisSerializer);
+
         return template;
     }
 

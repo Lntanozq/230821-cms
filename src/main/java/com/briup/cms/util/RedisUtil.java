@@ -1,9 +1,12 @@
 package com.briup.cms.util;
 
+import io.swagger.models.auth.In;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
  
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
  
 /**
@@ -43,6 +46,23 @@ public class RedisUtil {
             return false;
         }
     }
+
+    // 将<key, value>键值对存入redis
+    public Boolean hset(final String key, final String hashKey ,final Object value) {
+        try {
+            redisTemplate.opsForHash().put(key,hashKey,value);
+            return true;
+        } catch (final Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    //获取Hash里的值
+    public Map<Object, Object> getHash(String key){
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
+        return entries;
+    }
  
     // 将键值对存入value并设置过期时间
     public Boolean set(final String key, final Object value, final long time) {
@@ -68,5 +88,17 @@ public class RedisUtil {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // 键自增
+    public Integer increment(final String key , final String hashKey){
+
+        //如果key不存在，则新增并赋初始值为0
+        if(!redisTemplate.opsForHash().hasKey(key,hashKey)){
+            hset(key,hashKey,0);
+        }
+//        浏览量自增
+        Integer view_count = Math.toIntExact(redisTemplate.opsForHash().increment(key,hashKey,1));
+        return view_count;
     }
 }

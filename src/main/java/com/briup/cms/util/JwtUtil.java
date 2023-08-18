@@ -55,7 +55,7 @@ public class JwtUtil {
      */
     public static String getUserId(String token){
         Claims claims = parseJWT(token);
-        String id = (String) claims.get("userId");
+        String id = String.valueOf(claims.get("userId"));
         return id;
     }
 }

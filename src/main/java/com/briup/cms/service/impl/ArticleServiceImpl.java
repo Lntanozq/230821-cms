@@ -15,6 +15,7 @@ import com.briup.cms.dao.UserDao;
 import com.briup.cms.exception.ServiceException;
 import com.briup.cms.service.IArticleService;
 import com.briup.cms.util.JwtUtil;
+import com.briup.cms.util.RedisUtil;
 import com.briup.cms.util.ResultCode;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.BeanUtils;
@@ -44,6 +45,10 @@ public class ArticleServiceImpl implements IArticleService {
     private CategoryDao categoryDao;
     @Autowired
     private CommentDao commentDao;
+    @Autowired
+    private RedisUtil redisUtil;
+
+    private final String REDIS_KEY = "Article_Read_Num";
 
     public static String getToken() {
         // 第二种方式获取token
@@ -195,6 +200,8 @@ public class ArticleServiceImpl implements IArticleService {
 
         // 8.填入查询到的一级评论到扩展类对象中
         articleExtend.setComments(comments);
+        //9.浏览量自增
+        articleExtend.setReadNum(redisUtil.increment(REDIS_KEY,article.getId().toString()));
 
         return articleExtend;
     }
