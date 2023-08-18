@@ -32,7 +32,7 @@ public class LogServiceImpl implements ILogService {
             throw new ServiceException(ResultCode.PARAM_IS_BLANK);
 
         // 设置日志写入时间
-        log.setLogTime(LocalDateTime.now());
+        log.setCreateTime(LocalDateTime.now());
         logDao.insert(log);
     }
 
@@ -49,9 +49,9 @@ public class LogServiceImpl implements ILogService {
         LocalDateTime endTime = param.getEndTime();
         LambdaQueryWrapper<Log> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(userName != null, Log::getUsername, userName)
-               .le(endTime != null, Log::getLogTime, endTime)
-               .ge(startTime != null, Log::getLogTime, startTime)
-               .orderByDesc(Log::getLogTime);
+               .le(endTime != null, Log::getCreateTime, endTime)
+               .ge(startTime != null, Log::getCreateTime, startTime)
+               .orderByDesc(Log::getCreateTime);
 
         // 3.执行分页查询
         logDao.selectPage(page, wrapper);

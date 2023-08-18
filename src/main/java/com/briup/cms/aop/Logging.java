@@ -10,4 +10,8 @@ import java.lang.annotation.Target;
 public @interface Logging {
     //用法： 当web层中方法需要提供日志记录功能，只需要在该方法添加
     // logging注解即可
+	/**
+	 * 日志描述信息,可用于描述接口的用途
+	 */
+	String value() default "";
 }

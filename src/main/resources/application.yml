@@ -21,8 +21,8 @@ spring:
     timeout: 10000
   datasource:
     #mysql8??
-    #driver-class-name: com.mysql.cj.jdbc.Driver
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
+#    driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://218.4.196.178:20331/230308-cms?characterEncoding=utf8&useUnicode=true&useSSL=false&serverTimezone=GMT%2B8
     username: root
     password: root

@@ -1,88 +1,117 @@
 package com.briup.cms.aop;
 
+
+import com.briup.cms.bean.Ip;
 import com.briup.cms.bean.Log;
-import com.briup.cms.service.ILogService;
+import com.briup.cms.dao.LogDao;
+import com.briup.cms.util.IPUtils;
 import com.briup.cms.util.JwtUtil;
+import com.google.gson.Gson;
+import io.jsonwebtoken.Claims;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
 
 /**
- * 切面类
- * 1.如果实现AOP功能，添加aop依赖信息
- * 2.添加切入点规则
- * 3.添加通知 织入日志代码的位置
- * 4.运行任意的controller 代码 都会自动调用
- *   切点类中方法
+ * @author horry
+ * @Description 日志切面类:
+ * @date 2023/8/18-9:16
  */
-@Aspect //当前类是一个切面类
-@Component// 当前类被spring IOC容器创建对象
+@Aspect
+@Component
+@Slf4j
 public class LogAspect {
-    @Autowired
-    private ILogService logService;
 
-    // 连接点 : 所有的方法称为连接点
-    // 切入点: 部分连接点，根据切入规则
-    // spring框架提供的表达式
-    @Pointcut("execution(* com.briup.cms.web.controller.*.*(..)) && @annotation(Logging)")//使用@Pointcut编写哪些方法需要提供日志记录功能
-    public void LogCutPoint(){
-        // 该方法用来定义切入点的规则
-        // 切入点规则的名称就是该方法名
-        // 通过该表达式，表示 web层中所有的方法都作为切入点
-        // 只要方法满足切入点规则，spring在程序运行过程中动态添加日志代码
-        /*
-         选择所有方法作为添加日志的方法，但当用户登录时，
-         未提供日志信息中realName token。。。导致程序错误
-           通过提供一个注解设置哪些方法可以添加日志功能
-         */
-    }
+	@Autowired
+	private LogDao logMapper;
 
-    //增强的代码添加到切入点的位置在哪里？
-    @Before("LogCutPoint()") //在方法执行前执行代码
-    public void before(){
-        System.out.println("前置通知");
-        //浏览器--请求报文--tomcat--->request对象
-        //1.获取到浏览器访问系统的请求信息
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        ServletRequestAttributes sra = (ServletRequestAttributes)requestAttributes;
-        HttpServletRequest request = sra.getRequest();
 
-        //2.将请求信息封装到日志对象中
-        Log log = new Log();
-        //利用token信息提供username 和 realName
-        String token = request.getHeader("token");
-        String username = (String) JwtUtil.parseJWT(token).get("username");
-        // 设置登录用户名
-        log.setUsername(username);
-        // 设置请求方式
-        log.setRequestMethod(request.getMethod());
-        // 设置请求uri
-        log.setRequestUri(request.getServletPath());
-        // 设置访问执行时间 此处不写 service层补充
-        // log.setLogTime(LocalDateTime.now());
+	//定义切入点: 当执行Controller包下的方法 并且方法上添加了日志注解 需要使用切面增强
+	@Pointcut("execution(* com.briup.cms.web.controller.*.*(..)) && @annotation(com.briup.cms.aop.Logging)")
+	public void pointcut() {
+	}
 
-        //3.将日志保存数据库
-        logService.save(log);
-    }
+	@SneakyThrows
+	@Around("pointcut()")
+	public Object around(ProceedingJoinPoint pjp) {
+		//设置处理请求的开始时间
+		Long start = System.currentTimeMillis();
 
-    // 测试代码
-  /*  @After("LogCutPoint()")
-    public void after(){
-        System.out.println("后置通知");
-    }
+		//日志对象
+		Log sysLog = new Log();
+		//Gson对象,将对象转为json字符串
+		Gson gson = new Gson();
 
-    @Around("LogCutPoint()")
-    public Object around(ProceedingJoinPoint pjp) throws Throwable {
-        System.out.println("开始环绕通知");
-        Object obj = pjp.proceed();
-        System.out.println("结束环绕通知");
-        return obj;
-    }*/
+		//获取接口信息,即接口的用途描述
+		MethodSignature signature = (MethodSignature) pjp.getSignature();
+		Method method = signature.getMethod();
+		sysLog.setBusinessName(method.getAnnotation(Logging.class).value());
+		log.info("接口功能:{}", sysLog.getBusinessName());
+		//获取请求的参数(即方法的入参)
+		sysLog.setParamsJson(gson.toJson(pjp.getArgs()));
+		log.info("请求参数为:{}", sysLog.getParamsJson());
+
+		//根据请求上下文 获取请求属性
+		ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+		//获取请求
+		assert requestAttributes != null;
+		HttpServletRequest request = requestAttributes.getRequest();
+
+		//获取token,根据token拿到用户信息
+		String token = request.getHeader("token");
+		//已经进入到处理请求阶段,可以不用校验token,因为在登录认证拦截时已经校验过了
+		if (!StringUtils.hasText(token)) {
+			throw new RuntimeException("token不存在");
+		}
+		Claims claims = JwtUtil.parseJWT(token);
+		sysLog.setUsername(String.valueOf(claims.get("username")));
+		log.info("当前请求的用户为:{}", sysLog.getUsername());
+
+		//获取请求路径url
+		sysLog.setRequestUrl(String.valueOf(request.getRequestURL()));
+		log.info("请求路径为:{}", sysLog.getRequestUrl());
+
+		//获取请求方式
+		sysLog.setRequestMethod(request.getMethod());
+		log.info("请求方式为:{}", sysLog.getRequestMethod());
+
+		//获取ip详情
+		Ip ip = IPUtils.getIP(request);
+		sysLog.setIp(ip.getIp());
+		log.info("发送请求的ip为:{}", sysLog.getIp());
+		sysLog.setSource(ip.getAddr());
+		log.info("发送请求的ip来源为:{}", sysLog.getSource());
+
+		//执行请求的接口,获取到执行结果(统一响应结果)
+		Object obj = pjp.proceed();
+
+		//设置响应结果
+		sysLog.setResultJson(gson.toJson(obj));
+		log.info("响应结果为:{}", sysLog.getResultJson());
+
+		//设置处理请求的结束时间
+		Long end = System.currentTimeMillis();
+		//设置处理请求耗时
+		sysLog.setSpendTime(end - start);
+		log.info("请求耗时为:{}", sysLog.getSpendTime());
+
+		//将日志存入数据库中
+		logMapper.insert(sysLog);
+
+		return obj;
+	}
+
+
 }

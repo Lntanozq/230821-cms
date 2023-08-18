@@ -1,53 +1,67 @@
 package com.briup.cms.bean;
 
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * @author shaoyb
- * @program: 230314-cms
- * @description TODO
- * @create 2023/3/22 17:21
- **/
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @TableName("cms_log")
 public class Log implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
     /**
-     * 编号
-     */
-    @TableId(value = "id", type = IdType.AUTO)
-    @JsonSerialize(using = ToStringSerializer.class)
+    * 主键ID
+    */
+    @TableId(type = IdType.AUTO)
     private Long id;
-
     /**
-     * 访问用户账号
-     */
+    * 操作用户
+    */
     private String username;
-
     /**
-     * 请求的方式，get post delete put
-     */
+    * 接口描述信息
+    */
+    private String businessName;
+    /**
+    * 请求接口
+    */
+    private String requestUrl;
+    /**
+    * 请求方式
+    */
     private String requestMethod;
-
     /**
-     * 请求的地址
-     */
-    private String requestUri;
-
+    * ip
+    */
+    private String ip;
     /**
-     * 请求的时间
-     */
-    private LocalDateTime logTime;
+    * ip来源
+    */
+    private String source;
+    /**
+    * 请求接口耗时
+    */
+    private Long spendTime;
+    /**
+    * 创建时间
+    */
+    private LocalDateTime createTime;
+    /**
+    * 请求参数
+    */
+    private String paramsJson;
+    /**
+    * 响应参数
+    */
+    private String resultJson;
 }
