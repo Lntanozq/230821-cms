@@ -17,10 +17,10 @@ import com.briup.cms.service.IArticleService;
 import com.briup.cms.util.JwtUtil;
 import com.briup.cms.util.RedisUtil;
 import com.briup.cms.util.ResultCode;
-import io.jsonwebtoken.Claims;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -213,12 +213,11 @@ public class ArticleServiceImpl implements IArticleService {
         // 准备查询条件
         LambdaQueryWrapper<Article> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(param.getUserId() != null, Article::getUserId, param.getUserId());
-        wrapper.eq(param.getStatus() != null, Article::getStatus, param.getStatus());
-        wrapper.like(param.getTitle() != null, Article::getTitle, param.getTitle());
+        wrapper.eq(StringUtils.hasText(param.getStatus()), Article::getStatus, param.getStatus());
+        wrapper.like(StringUtils.hasText(param.getTitle()), Article::getTitle, param.getTitle());
         wrapper.eq(param.getCharged() != null, Article::getCharged, param.getCharged());
         wrapper.eq(param.getCategoryId() != null, Article::getCategoryId, param.getCategoryId());
-
-        //注意： "endTime": "2023-03-20T17:18:52" 才可以！！！
+        
         wrapper.le(param.getEndTime() != null, Article::getPublishTime, param.getEndTime());
         wrapper.ge(param.getStartTime() != null, Article::getPublishTime, param.getStartTime());
         //wrapper.between(Article::getPublishTime, param.getStartTime(), param.getEndTime());
