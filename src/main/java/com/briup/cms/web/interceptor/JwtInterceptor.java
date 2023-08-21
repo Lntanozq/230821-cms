@@ -6,13 +6,14 @@ import com.briup.cms.util.ResultCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
+@Slf4j
 public class JwtInterceptor implements HandlerInterceptor {
 
     @Override
@@ -21,18 +22,18 @@ public class JwtInterceptor implements HandlerInterceptor {
     	if(!(object instanceof HandlerMethod)){
     		return true;
     	}
-    	
+
         // 从 HTTP请求头中取出 token
         String token = httpServletRequest.getHeader("Authorization");
         if (token == null) {
             throw new RuntimeException("无token，请重新登录");
         }
-        
+
         // 验证 token
         try {
             //解析JWT
             Claims claims = JwtUtil.parseJWT(token);
-            String id = (String) claims.get("userId");
+            String id = String.valueOf(claims.get("userId"));
             httpServletRequest.setAttribute("userId",id);
         }catch (ExpiredJwtException e){
             //登录到期
@@ -41,6 +42,7 @@ public class JwtInterceptor implements HandlerInterceptor {
             //令牌失效
             throw new RuntimeException("令牌失效");
         }catch (Exception e){
+            log.error(e.getMessage());
             //服务器内部错误
             throw new ServiceException(ResultCode.SYSTEM_INNER_ERROR);
         }

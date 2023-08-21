@@ -11,6 +11,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,10 +25,18 @@ import org.springframework.web.bind.annotation.*;
  */
 @Api(tags = "用户模块")
 @RestController
+@Slf4j
 @RequestMapping("/auth/user")
 public class UserController {
     @Autowired
     private IUserService userService;
+
+    @ApiOperation("获取用户个人信息")
+    @GetMapping("/info")
+    public Result getInfo(@RequestAttribute("userId") Long id){
+        log.info("id:{}",id);
+        return Result.success(userService.queryById(id));
+    }
 
     @ApiOperation(value = "新增用户", notes = "username、password必须存在不为空，且username唯一")
     @PostMapping("/save")
