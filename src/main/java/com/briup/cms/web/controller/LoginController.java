@@ -47,7 +47,7 @@ public class LoginController {
         map.put("roleId", user.getRoleId());
         String token = JwtUtil.generateJwt(map);
 
-        return Result.success("token: " + token);
+        return Result.success(token);
     }
 
     @ApiOperation(value = "登录", notes = "需要提供用户名和密码")

@@ -6,7 +6,7 @@ package com.briup.cms.util;
 public enum ResultCode {
 	
 	/* 成功状态码 */
-	SUCCESS(1, "操作成功"),
+	SUCCESS(200, "操作成功"),
 	
 	/* 参数错误：10001-19999 */
 	PARAM_IS_INVALID(10001, "参数无效"),

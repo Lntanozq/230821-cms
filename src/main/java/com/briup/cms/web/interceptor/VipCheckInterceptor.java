@@ -30,7 +30,7 @@ public class VipCheckInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //1.获取当前登录用户
-        String token = request.getHeader("token");
+        String token = request.getHeader("Authorization");
         //System.out.println("in preHandler token: " + token);
         Long userId = Long.parseLong(JwtUtil.getUserId(token));
         //System.out.println("in vip userId: " + userId);

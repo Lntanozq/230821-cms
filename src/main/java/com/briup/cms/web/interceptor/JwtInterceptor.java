@@ -23,7 +23,7 @@ public class JwtInterceptor implements HandlerInterceptor {
     	}
     	
         // 从 HTTP请求头中取出 token
-        String token = httpServletRequest.getHeader("token");
+        String token = httpServletRequest.getHeader("Authorization");
         if (token == null) {
             throw new RuntimeException("无token，请重新登录");
         }
@@ -32,6 +32,8 @@ public class JwtInterceptor implements HandlerInterceptor {
         try {
             //解析JWT
             Claims claims = JwtUtil.parseJWT(token);
+            String id = (String) claims.get("userId");
+            httpServletRequest.setAttribute("userId",id);
         }catch (ExpiredJwtException e){
             //登录到期
             throw new RuntimeException("登录到期");
