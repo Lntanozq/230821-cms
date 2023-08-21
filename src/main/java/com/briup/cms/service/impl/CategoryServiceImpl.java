@@ -3,7 +3,6 @@ package com.briup.cms.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.briup.cms.bean.Article;
 import com.briup.cms.bean.Category;
 import com.briup.cms.bean.extend.CategoryExtend;
 import com.briup.cms.dao.ArticleDao;
@@ -15,9 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author shaoyb
@@ -81,6 +77,11 @@ public class CategoryServiceImpl implements ICategoryService {
 
         //5.插入
         categoryDao.insert(category);
+    }
+
+    @Override
+    public Category getCategoryById(Integer id) {
+        return categoryDao.selectById(id);
     }
 
     //更新栏目
