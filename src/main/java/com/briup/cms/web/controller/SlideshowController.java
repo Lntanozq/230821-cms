@@ -80,8 +80,8 @@ public class SlideshowController {
 			@ApiImplicitParam(name = "desc", value = "描述信息", paramType = "query")
 	})
 	@GetMapping("/query")
-	public Result query(Integer page, Integer pageSize, String status, String desc) {
-		IPage<Slideshow> p = slideshowService.query(page, pageSize, status, desc);
+	public Result query(Integer pageNum, Integer pageSize, String status, String description) {
+		IPage<Slideshow> p = slideshowService.query(pageNum, pageSize, status, description);
 
 		return Result.success(p);
 	}

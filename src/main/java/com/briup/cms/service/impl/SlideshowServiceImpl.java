@@ -11,6 +11,7 @@ import com.briup.cms.util.ResultCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -81,8 +82,8 @@ public class SlideshowServiceImpl implements ISlideshowService {
 	public IPage<Slideshow> query(Integer page, Integer pageSize, String status, String desc) {
 		IPage<Slideshow> p = new Page<>(page, pageSize);
 		LambdaQueryWrapper<Slideshow> qw = new LambdaQueryWrapper<>();
-		qw.eq(status != null, Slideshow::getStatus, status)
-				.like(desc != null, Slideshow::getDescription, desc)
+		qw.eq(StringUtils.hasText(status), Slideshow::getStatus, status)
+				.like(StringUtils.hasText(desc), Slideshow::getDescription, desc)
 				.orderByDesc(Slideshow::getUploadTime);
 
 		slideshowDao.selectPage(p, qw);
