@@ -97,7 +97,7 @@ public class UserServiceImpl implements IUserService {
 			// 更新username
 			user.setUsername(username);
 
-			//3.用户名唯一判断
+			//3.用户名唯一判断: 查询username是否唯一(除当前user外)
 			LambdaQueryWrapper<User> qw = new LambdaQueryWrapper<>();
 			qw.eq(User::getUsername, username)
 					.notIn(User::getId, id);

@@ -69,7 +69,7 @@ public class User implements Serializable {
     /**
      * 注册时间
      */
-    @DateTimeFormat(iso= DateTimeFormat.ISO.DATE_TIME)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime registerTime;
 
     /**
@@ -96,7 +96,7 @@ public class User implements Serializable {
     /**
      * 会员到期时间
      */
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expiresTime;
 
     /**
