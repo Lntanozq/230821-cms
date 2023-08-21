@@ -56,7 +56,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "更新用户信息", notes = "id必须存在且有效，如果username存在则必须唯一")
-    @PostMapping("/update")
+    @PutMapping("/update")
     public Result update(@RequestBody User user) {
         userService.update(user);
 
