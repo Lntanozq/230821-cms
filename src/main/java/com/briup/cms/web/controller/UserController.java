@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * <p>
  *  前端控制器
@@ -64,9 +66,9 @@ public class UserController {
     }
 
     @ApiOperation(value = "根据id删除用户", notes = "id必须存在且有效")
-    @DeleteMapping("/deleteById/{id}")
-    public Result deleteById(@PathVariable Long id) {
-        userService.deleteById(id);
+    @DeleteMapping("/deleteById/{ids}")
+    public Result deleteByBatch(@PathVariable("ids") List<Integer> ids) {
+        userService.deleteByBatch(ids);
 
         return Result.success("删除成功");
     }

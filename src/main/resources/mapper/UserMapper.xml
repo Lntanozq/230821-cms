@@ -29,7 +29,7 @@
     <!-- 引用RoleMapper.xml中的BaseRoleResult -->
     <resultMap id="UserResultWithRole" type="com.briup.cms.bean.extend.UserExtend"
         extends="BaseUserResult">
-        <association property="role" resultMap="com.briup.cms.dao.RoleDao.BaseRoleResult"></association>
+        <association property="role" resultMap="com.briup.cms.dao.RoleDao.BaseRoleResult"/>
     </resultMap>
 
     <select id="queryAllUserWithRole" resultMap="UserResultWithRole">
@@ -44,13 +44,13 @@
             <if test="roleId!=null">
                 and u.role_id=#{roleId}
             </if>
-            <if test="status!=null">
+            <if test="status!=null and status != ''">
                 and u.status=#{status}
             </if>
             <if test="isVip!=null">
                 and u.is_vip=#{isVip}
             </if>
-            <if test="username!=null">
+            <if test="username!=null and username != ''">
                 and u.username like concat('%',#{username},'%')
             </if>
         </where>

@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.briup.cms.bean.User;
 import com.briup.cms.bean.extend.UserExtend;
 
+import java.util.List;
+
 public interface IUserService {
     // 新增用户
     void save(User user);
@@ -15,7 +17,7 @@ public interface IUserService {
     void update(User user);
 
     //删除指定用户
-    void deleteById(Long id);
+    void deleteByBatch(List<Integer> ids);
 
     //用户登录
     User login(String username, String password);

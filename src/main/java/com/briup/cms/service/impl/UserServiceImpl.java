@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author shaoyb
@@ -110,13 +111,14 @@ public class UserServiceImpl implements IUserService {
 	}
 
 	@Override
-	public void deleteById(Long id) {
+	public void deleteByBatch(List<Integer> ids) {
 		//1.有效参数判断
-		if (id == null || userDao.selectById(id) == null)
-			throw new ServiceException(ResultCode.PARAM_IS_INVALID);
+		if (ids == null || ids.isEmpty()) {
+			throw new ServiceException(ResultCode.PARAM_IS_BLANK);
+		}
 
 		//2.删除指定用户
-		userDao.deleteById(id);
+		userDao.deleteBatchIds(ids);
 	}
 
 	@Override
