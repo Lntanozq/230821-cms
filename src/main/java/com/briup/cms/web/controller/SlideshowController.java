@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ import java.util.List;
  * @create 2023/3/8 15:40
  **/
 @Api(tags = "轮播图模块")
+@Slf4j
 @RestController //  @ResponseBody + @Controller
 @RequestMapping("/slideshow")
 public class SlideshowController {
@@ -40,24 +42,10 @@ public class SlideshowController {
 		return Result.success("操作成功");
 	}
 
-	//Restful风格
-//    @GetMapping("/deleteById/{sid}")
-	@ApiOperation(value = "按照id删除轮播图", notes = "id必须存在且有效")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "sid", value = "轮播图id", required = true,
-					dataType = "int", paramType = "path", defaultValue = "1")
-	})
-	@DeleteMapping("/deleteById/{sid}")
-	public Result deleteById(@PathVariable("sid") Integer id) {
-		slideshowService.deleteById(id);
-
-		return Result.success("删除成功");
-	}
-
 	@ApiOperation(value = "批量删除轮播图", notes = "需要提供多个id值")
-	@DeleteMapping("/deleteByIdAll")
-	public Result deleteSlideshowInBatch(@RequestParam("ids") List<Integer> ids) {
-		System.out.println("ids: " + ids);
+	@DeleteMapping("/deleteByBatch/{ids}")
+	public Result deleteSlideshowInBatch(@PathVariable("ids") List<Integer> ids) {
+		log.info("ids: {}",ids);
 		slideshowService.deleteInBatch(ids);
 
 		return Result.success("删除成功");
@@ -74,15 +62,14 @@ public class SlideshowController {
 	//第几页 每页数量 status 描述
 	@ApiOperation(value = "根据条件查询轮播图")
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "page", value = "当前页", dataType = "int", required = true, defaultValue = "1", paramType = "query"),
+			@ApiImplicitParam(name = "pageNum", value = "当前页", dataType = "int", required = true, defaultValue = "1", paramType = "query"),
 			@ApiImplicitParam(name = "pageSize", value = "每页数量", dataType = "int", required = true, defaultValue = "4", paramType = "query"),
 			@ApiImplicitParam(name = "status", value = "状态值", paramType = "query"),
 			@ApiImplicitParam(name = "desc", value = "描述信息", paramType = "query")
 	})
 	@GetMapping("/query")
-	public Result query(Integer pageNum, Integer pageSize, String status, String description) {
-		IPage<Slideshow> p = slideshowService.query(pageNum, pageSize, status, description);
-
+	public Result query(Integer pageNum, Integer pageSize, String status, String desc) {
+		IPage<Slideshow> p = slideshowService.query(pageNum, pageSize, status, desc);
 		return Result.success(p);
 	}
 

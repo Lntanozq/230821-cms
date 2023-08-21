@@ -8,6 +8,7 @@ import com.briup.cms.dao.SlideshowDao;
 import com.briup.cms.exception.ServiceException;
 import com.briup.cms.service.ISlideshowService;
 import com.briup.cms.util.ResultCode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import java.util.List;
  * @description TODO
  * @create 2023/3/7 15:40
  **/
+@Slf4j
 @Service
 public class SlideshowServiceImpl implements ISlideshowService {
 	@Autowired
@@ -87,11 +89,6 @@ public class SlideshowServiceImpl implements ISlideshowService {
 				.orderByDesc(Slideshow::getUploadTime);
 
 		slideshowDao.selectPage(p, qw);
-        /*System.out.println("当前页码值：" + p.getCurrent());
-        System.out.println("每页显示数：" + p.getSize());
-        System.out.println("总页数：" + p.getPages());
-        System.out.println("总条数：" + p.getTotal());
-        System.out.println("当前页数据：" + p.getRecords());*/
 
 		if (p.getTotal() == 0)
 			throw new ServiceException(ResultCode.DATA_NONE);
@@ -100,27 +97,17 @@ public class SlideshowServiceImpl implements ISlideshowService {
 	}
 
 	@Override
-	public void deleteById(Integer id) {
-		// 1.判断id是否存在
-		Slideshow slideshow = slideshowDao.selectById(id);
-
-		// 轮播图不存在
-		if (slideshow == null)
-			throw new ServiceException(ResultCode.SLIDESHOW_NOT_EXISTED);
-
-		// 2.删除轮播图
-		slideshowDao.deleteById(id);
-	}
-
-	@Override
 	public void deleteInBatch(List<Integer> ids) {
+		if (ids == null ||ids.isEmpty()){
+			throw new ServiceException(ResultCode.PARAM_IS_BLANK);
+		}
+
 		//根据ids查找轮播图
 		LambdaQueryWrapper<Slideshow> qw = new LambdaQueryWrapper<>();
 		qw.in(Slideshow::getId, ids);
 		int len = slideshowDao.selectCount(qw);
-		//int len = slideshowDao.getSizeByIds(ids);
-		//int len = slideshowDao.selectBatchIds(ids).size();
-		System.out.println("len: " + len);
+
+		log.info("len:{}",len);
 
 		if (len <= 0) {
 			throw new ServiceException(ResultCode.SLIDESHOW_NOT_EXISTED);

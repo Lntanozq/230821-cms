@@ -9,8 +9,6 @@ public interface ISlideshowService {
 
     Slideshow queryOneById(Integer id);
 
-    void deleteById(Integer id);
-
     void deleteInBatch(List<Integer> ids);
 
     void saveOrUpdate(Slideshow slideshow);
