@@ -1,6 +1,7 @@
 package com.briup.cms.web.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.briup.cms.aop.Logging;
 import com.briup.cms.bean.Article;
 import com.briup.cms.bean.extend.ArticleExtend;
 import com.briup.cms.bean.vo.ArticleParam;
@@ -69,6 +70,7 @@ public class ArticleController {
 		return Result.success("删除成功");
 	}
 
+	@Logging("查询指定文章")
 	@ApiOperation(value = "查询指定文章", notes = "文章要包含3条一级评论")
 	@GetMapping("/queryById/{id}")
 	public Result queryById(@PathVariable Long id) {

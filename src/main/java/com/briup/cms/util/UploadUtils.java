@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -26,46 +24,6 @@ public class UploadUtils {
 
 	@Resource
 	private UploadProperties uploadProperties;
-
-	/**
-	 * @param file 待上传的文件
-	 * @return 上传成功后回显的url路径
-	 */
-	public String fileToLocal(MultipartFile file)
-			throws IOException {
-
-		log.info("文件上传到本地nginx中:{}", file.getOriginalFilename());
-
-		//指定文件上传路径(本地nginx服务其中)
-		String parentPath = uploadProperties.getNginxPath()
-				+ uploadProperties.getBasePath() + "/";
-
-		//获取需要上传的文件名称
-		String filename = generateFilePath(file);
-
-		log.info("上传到服务器后的文件名称:{}", filename);
-
-
-		//创建输出文件对象
-		File file2 = new File(parentPath, filename);
-		//如果父目录不存在,先创建父目录
-		File directory = file2.getParentFile();
-		if (!directory.exists()) {
-			boolean mkdirs = directory.mkdirs();
-		}
-
-		//文件上传本地
-		file.transferTo(file2);
-
-		//文件上传成功后,给返回的路径赋值,以存入数据库中,方便在浏览器中访问
-		//注意nginx端口号,默认的 80 端口可以省略
-		String url = "http://localhost/" + uploadProperties.getBasePath()
-				+ "/" + filename;
-
-		log.info("文件上传成功,文件地址:{}", url);
-
-		return url;
-	}
 
 	/**
 	 * @param file 待上传的文件
