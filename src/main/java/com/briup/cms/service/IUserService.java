@@ -17,7 +17,7 @@ public interface IUserService {
     void update(User user);
 
     //删除指定用户
-    void deleteByBatch(List<Integer> ids);
+    void deleteByBatch(List ids);
 
     //用户登录
     User login(String username, String password);
