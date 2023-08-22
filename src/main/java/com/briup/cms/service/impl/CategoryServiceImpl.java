@@ -10,9 +10,11 @@ import com.briup.cms.dao.CategoryDao;
 import com.briup.cms.exception.ServiceException;
 import com.briup.cms.service.ICategoryService;
 import com.briup.cms.util.ResultCode;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -200,6 +202,20 @@ public class CategoryServiceImpl implements ICategoryService {
         if(list == null || list.size() == 0)
             throw new ServiceException(ResultCode.CATEGORY_NOT_EXIST);
 
-        return list;
+        List<CategoryExtend> allList = new ArrayList<>();
+        for (CategoryExtend pCate : list) {
+            Integer pId = pCate.getId();
+
+            LambdaQueryWrapper<Category> qw = new LambdaQueryWrapper<>();
+            qw.eq(Category::getParentId, pId)
+                .orderByAsc(Category::getOrderNum);
+            List<Category> categories = categoryDao.selectList(qw);
+
+            pCate.setCates(categories);
+
+            allList.add(pCate);
+        }
+
+        return allList;
     }
 }
