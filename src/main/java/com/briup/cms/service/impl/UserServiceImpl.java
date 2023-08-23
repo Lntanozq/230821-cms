@@ -151,6 +151,13 @@ public class UserServiceImpl implements IUserService {
 		return user;
 	}
 
+	@Override
+	public List<User> getAllUser() {
+		LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+		queryWrapper.eq(User::getStatus,"启用");
+		return userDao.selectList(queryWrapper);
+	}
+
 	//分页+条件查询
 	@Override
 	public IPage<UserExtend> query(Integer pageNum, Integer pageSize, String username, String status, Integer roleId, Integer isVip) {

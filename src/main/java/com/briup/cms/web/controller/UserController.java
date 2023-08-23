@@ -85,6 +85,13 @@ public class UserController {
         return Result.success(user);
     }
 
+    @ApiOperation(value = "查询全部用户", notes = "id必须存在且有效")
+    @GetMapping("/getAllUser")
+    public Result getAllUser() {
+        List<User> allUser = userService.getAllUser();
+        return Result.success(allUser);
+    }
+
     @ApiOperation(value = "分页+条件查询用户", notes = "用户中要含角色信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "页码", required = true, dataType = "int", paramType = "query"),
