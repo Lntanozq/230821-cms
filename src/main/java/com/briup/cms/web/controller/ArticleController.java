@@ -74,8 +74,7 @@ public class ArticleController {
 	@ApiOperation(value = "查询指定文章", notes = "文章要包含3条一级评论")
 	@GetMapping("/queryById/{id}")
 	public Result queryById(@PathVariable Long id) {
-		System.out.println("id = =====" + id);
-		ArticleExtend articleExtend = articleService.queryByIdWithComments(id);
+		ArticleExtend articleExtend = articleService.queryById(id);
 
 		return Result.success(articleExtend);
 	}

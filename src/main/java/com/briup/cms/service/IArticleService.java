@@ -20,6 +20,9 @@ public interface IArticleService {
 
     ArticleExtend queryByIdWithComments(Long id);
 
+
+
     IPage<Article> query(ArticleParam articleParam);
 
+    ArticleExtend queryById(Long id);
 }

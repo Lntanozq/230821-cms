@@ -228,4 +228,21 @@ public class ArticleServiceImpl implements IArticleService {
 
         return page;
     }
+
+    /**
+     * 根据文章ID查询文章信息
+     * @param id
+     * @return
+     */
+    @Override
+    public ArticleExtend queryById(Long id) {
+        //根据ID查询指定文章
+        Article article = articleDao.selectById(id);
+        //创建文章扩展类对象
+        ArticleExtend articleExtend = new ArticleExtend();
+        //Bean拷贝
+        BeanUtils.copyProperties(article,articleExtend);
+        //返回文章扩展类对象
+        return articleExtend;
+    }
 }
