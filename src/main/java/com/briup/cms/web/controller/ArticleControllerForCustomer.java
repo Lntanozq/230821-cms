@@ -27,8 +27,9 @@ public class ArticleControllerForCustomer {
     //查询指定的文章（收费文章只能会员才可以查看）
     @GetMapping("/{id}")
     public Result getArticleById(@PathVariable Long id) {
+        ArticleExtend articleExtend = articleService.queryByIdForCustomer(id);
 
-        return null;
+        return Result.success(articleExtend);
     }
 
     //查询所有文章（包含作者信息）

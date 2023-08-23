@@ -153,7 +153,7 @@ public class ArticleServiceImpl implements IArticleService {
 
     //用户端也可以使用
     @Override
-    public ArticleExtend queryByIdWithComments(Long id) {
+    public ArticleExtend queryByIdForCustomer(Long id) {
         // 1.参数判断
         if(id == null)
             throw new ServiceException(ResultCode.PARAM_IS_BLANK);
@@ -169,50 +169,65 @@ public class ArticleServiceImpl implements IArticleService {
 
         // 4.判断文章的发表人是否存在，如果不存在，则无法查看该文章
         Long userId = article.getUserId();
-        if(userDao.selectById(userId) == null)
+        User author = userDao.selectById(userId);
+        if(author == null)
             throw new ServiceException(ResultCode.USER_NOT_EXIST);
 
         // 5.判断当前用户是否能查看当前文章
-        //  获取token，进而获取userId及isVip
-        System.out.println("userId =========== " + userId);
         String token = getToken();
         System.out.println("token============== = " + token);
-        Long currUserId = Long.parseLong(JwtUtil.getUserId(token));
-        // 获取当前登录账户的isVip值
-        Integer isVip = userDao.selectById(currUserId).getIsVip();
 
-        // bug: 用户充值成为vip以后，要重新登录，更新token中isVip值
-        //Map<String, Object> map = JwtUtil.getInfo(token);
-        //Integer isVip = (Integer) map.get("isVip");
+        if(token == null) {
+            // 5.1 如果当前用户为游客，则不能查看收费文章
+            if(article.getCharged() == 1)
+                throw new ServiceException(ResultCode.ARTICLE_IS_NOT_VISIBLE);
+        }else {
+            // 5.2 如果当前用户为登录用户（非会员），则不能查看收费文章
 
-        // 如果当前用户不是文章的拥有者，同时文章收费，当前用户还不是Vip，查看失败
-        // 注意：Long值比较使用 equals方法进行
-        if(!currUserId.equals(article.getUserId()) && article.getCharged() == 1 && isVip == 0) {
-            throw new ServiceException(ResultCode.ARTICLE_IS_NOT_VISIBLE);
+            //  根据token获取userId及isVip
+            //System.out.println("userId =========== " + userId);
+            Long currUserId = Long.parseLong(JwtUtil.getUserId(token));
+            // 获取当前登录账户的isVip值
+            Integer isVip = userDao.selectById(currUserId).getIsVip();
+
+            // bug: 用户充值成为vip以后，要重新登录，更新token中isVip值
+            //Map<String, Object> map = JwtUtil.getInfo(token);
+            //Integer isVip = (Integer) map.get("isVip");
+
+            // 如果当前用户不是文章作者，也不是Vip，同时文章收费，查看失败
+            // 注意：Long值比较使用 equals方法进行
+            if (!currUserId.equals(article.getUserId()) && article.getCharged() == 1 && isVip == 0) {
+                throw new ServiceException(ResultCode.ARTICLE_IS_NOT_VISIBLE);
+            }
         }
 
         // 6.复制文章对象属性 到 扩展类对象中
         ArticleExtend articleExtend = new ArticleExtend();
         BeanUtils.copyProperties(article, articleExtend);
 
-        // 7.根据文章id查询一级评论，按发表时间倒序，取最近3条
+        // 7.往扩展类对象中补充作者
+        articleExtend.setAuthor(author);
+
+        // 8.根据文章id查询一级评论，按发表时间倒序，取最近3条
         LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper();
         wrapper.eq(Comment::getArticleId, id)
             .orderByDesc(Comment::getPublishTime)
             .last("limit 3");
         List<Comment> comments = commentDao.selectList(wrapper);
 
-        // 8.填入查询到的一级评论到扩展类对象中
+        // 9.填入查询到的一级评论到扩展类对象中
         articleExtend.setComments(comments);
-        //9.浏览量自增
+
+        // 10.浏览量自增
         articleExtend.setReadNum(redisUtil.increment(REDIS_KEY,article.getId().toString()));
 
         return articleExtend;
     }
 
     //查询指定的文章（包含3条1级评论，还有作者）
+    //专门为前端提供：
     @Override
-    public ArticleExtend queryByIdWithCommentsAndAuthor(Long id) {
+    public ArticleExtend queryByIdWithComments(Long id) {
         // 1.参数判断
         if(id == null)
             throw new ServiceException(ResultCode.PARAM_IS_BLANK);

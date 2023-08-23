@@ -21,7 +21,7 @@ public interface IArticleService {
 
 
 
-    ArticleExtend queryByIdWithCommentsAndAuthor(Long id);
+    ArticleExtend queryByIdForCustomer(Long id);
 
     IPage<ArticleExtend> query(ArticleParam articleParam);
 
