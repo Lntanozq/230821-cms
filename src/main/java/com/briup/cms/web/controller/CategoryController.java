@@ -1,18 +1,22 @@
 package com.briup.cms.web.controller;
 
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.briup.cms.bean.Category;
 import com.briup.cms.bean.extend.CategoryExtend;
 import com.briup.cms.service.ICategoryService;
 import com.briup.cms.util.Result;
+import com.briup.cms.util.excel.CategoryListener;
+import com.briup.cms.util.excel.CategoryParentIdConverter;
+import com.briup.cms.util.excel.ExcelUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -29,6 +33,8 @@ import java.util.List;
 public class CategoryController {
 	@Autowired
 	private ICategoryService categoryService;
+	@Autowired
+	private ExcelUtils excelUtils;
 
 	@ApiOperation(value = "新增栏目", notes = "栏目名必须唯一，如果为二级栏目则其父栏目id必须有效")
 	@PostMapping("/save")
@@ -87,6 +93,27 @@ public class CategoryController {
 		List<CategoryExtend> list = categoryService.queryAllParent();
 
 		return Result.success(list);
+	}
+
+	@ApiOperation("导入栏目数据")
+	@PostMapping("/import")
+	public Result imports(@RequestPart MultipartFile file) {
+		CategoryParentIdConverter parentIdConverter = new CategoryParentIdConverter(categoryService);
+		//获取数据
+		List<Category> list = excelUtils.importData(file, Category.class, new CategoryListener(), parentIdConverter);
+		//导入数据
+		list.forEach(System.out::println);
+		return Result.success("数据导入成功");
+	}
+
+	@ApiOperation("导出栏目数据")
+	@GetMapping(value = "/export", produces = "application/octet-stream")
+	public void exports(HttpServletResponse response) {
+		CategoryParentIdConverter parentIdConverter = new CategoryParentIdConverter(categoryService);
+		//1.获取栏目数据
+		List<Category> list = categoryService.queryAll();
+		//2.导出数据
+		excelUtils.exportExcel(response, list, Category.class, "栏目信息表", parentIdConverter);
 	}
 }
 

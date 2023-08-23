@@ -21,4 +21,8 @@ public interface ICategoryService {
     IPage<Category> query(Integer page, Integer pageSize, Integer parentId);
 
     List<CategoryExtend> queryAllParent();
+
+    List<Category> queryAllOneLevel();
+
+    List<Category> queryAll();
 }

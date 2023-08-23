@@ -1,7 +1,7 @@
 package com.briup.cms.dao;
 
-import com.briup.cms.bean.Category;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.briup.cms.bean.Category;
 import com.briup.cms.bean.extend.CategoryExtend;
 
 import java.util.List;
