@@ -2,6 +2,7 @@ package com.briup.cms.bean.extend;
 
 import com.briup.cms.bean.Category;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.List;
  * @create 2023/3/17 1:36
  **/
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class CategoryExtend extends Category {
     //子栏目
     private List<Category> cates;

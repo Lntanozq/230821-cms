@@ -26,7 +26,10 @@ public interface IUserService {
     // 根据id查找用户
     User queryById(Long id);
 
+    List<User> getAllUser();
+
     // 用户查询
     public IPage<UserExtend> query(Integer pageNum, Integer pageSize, String username, String status, Integer roleId, Integer isVip);
+
 
 }
