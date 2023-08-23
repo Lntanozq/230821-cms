@@ -56,22 +56,24 @@ public class ArticleServiceImpl implements IArticleService {
                 (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = requestAttributes.getRequest();
 
-        return request.getHeader("token");
+        return request.getHeader("Authorization");
     }
 
     @Override
     public void saveOrUpdate(Article article) {
+        // 文章状态判断：如果文章已经发表，普通用户不能再修改其标题、内容等信息
+        Map<String, Object> info = JwtUtil.parseJWT(getToken());
         // 1.参数判断
         if(article == null){
             throw new ServiceException(ResultCode.PARAM_IS_BLANK);
         }
 
         // 2.用户判断：如果用户不存在，则抛异常
-        Long userId = article.getUserId();
+        Integer userId = (Integer) info.get("userId");
         if(userId != null && userDao.selectById(userId) == null) {
             throw new ServiceException(ResultCode.USER_NOT_EXIST);
         }
-
+        article.setUserId(userId.longValue());
         // 3.栏目判断：如果栏目不存在，或栏目不是2级栏目，则抛异常
         Integer categoryId = article.getCategoryId();
         if(categoryId != null) {
@@ -95,10 +97,7 @@ public class ArticleServiceImpl implements IArticleService {
             if(oldArticle == null)
                 throw new ServiceException(ResultCode.ARTICLE_NOT_EXIST);
 
-            String token = getToken();
 
-            // 文章状态判断：如果文章已经发表，普通用户不能再修改其标题、内容等信息
-            Map<String, Object> info = JwtUtil.parseJWT(token);
             Integer roleId = (Integer) info.get("roleId");
             //System.out.println("roleId: " + roleId);
             if(roleId == 3 && "审核通过".equals(oldArticle.getStatus()))

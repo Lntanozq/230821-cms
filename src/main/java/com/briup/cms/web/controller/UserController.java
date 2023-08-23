@@ -95,8 +95,8 @@ public class UserController {
             @ApiImplicitParam(name = "isVip", value = "是否为会员: 0|1", dataType = "int", paramType = "query")
     })
     @GetMapping("/query")
-    public Result query(Integer page, Integer pageSize, String username, String status, Integer roleId, Integer isVip) {
-        IPage<UserExtend> p = userService.query(page, pageSize, username, status, roleId, isVip);
+    public Result query(Integer pageNum, Integer pageSize, String username, String status, Integer roleId, Integer isVip) {
+        IPage<UserExtend> p = userService.query(pageNum, pageSize, username, status, roleId, isVip);
 
         return Result.success(p);
     }
