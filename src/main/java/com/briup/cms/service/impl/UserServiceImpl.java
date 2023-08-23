@@ -83,25 +83,26 @@ public class UserServiceImpl implements IUserService {
 	//更新用户信息
 	@Override
 	public void update(User user) {
-		//1.id判断
+		//1.id判断（非空且有效存在）
 		Long id = user.getId();
-		if (id == null || userDao.selectById(id) == null)
+		User dbUser = userDao.selectById(id);
+		if (id == null || dbUser == null)
 			throw new ServiceException(ResultCode.PARAM_IS_INVALID);
 
-		//2.username空白字符去除【实际开发中 交给前端处理】
-		String username = user.getUsername();
-		if (username != null) {
-			username = username.trim();
-			if ("".equals(username))
+		//2.username空白字符去除【实际开发中交给前端处理,此处纯粹配合学习】
+		String newName = user.getUsername();
+		String oldName = dbUser.getUsername();
+		if (newName != null && !newName.equals(oldName)) {
+			String trimName = newName.trim();
+			if ("".equals(trimName))
 				throw new ServiceException(ResultCode.PARAM_IS_INVALID);
 
-			// 更新username
-			user.setUsername(username);
+			//更新username(已经去除前后空白字符)
+			user.setUsername(trimName);
 
 			//3.用户名唯一判断: 查询username是否唯一(除当前user外)
 			LambdaQueryWrapper<User> qw = new LambdaQueryWrapper<>();
-			qw.eq(User::getUsername, username)
-					.notIn(User::getId, id);
+			qw.eq(User::getUsername, trimName);
 			if (userDao.selectOne(qw) != null)
 				throw new ServiceException(ResultCode.USERNAME_HAS_EXISTED);
 		}
