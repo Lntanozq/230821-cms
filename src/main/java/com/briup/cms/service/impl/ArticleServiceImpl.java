@@ -70,6 +70,7 @@ public class ArticleServiceImpl implements IArticleService {
 
         // 2.用户判断：如果用户不存在，则抛异常
         Integer userId = (Integer) info.get("userId");
+        System.out.println("userId = " + userId);
         if(userId != null && userDao.selectById(userId) == null) {
             throw new ServiceException(ResultCode.USER_NOT_EXIST);
         }
