@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.briup.cms.bean.Article;
 import com.briup.cms.bean.Category;
 import com.briup.cms.bean.Comment;
+import com.briup.cms.bean.User;
 import com.briup.cms.bean.extend.ArticleExtend;
 import com.briup.cms.bean.vo.ArticleParam;
 import com.briup.cms.dao.ArticleDao;
@@ -26,6 +27,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -150,6 +152,81 @@ public class ArticleServiceImpl implements IArticleService {
             throw new ServiceException(ResultCode.PARAM_IS_INVALID);
     }
 
+    //用户端也可以使用
+    @Override
+    public ArticleExtend queryByIdForCustomer(Long id) {
+        // 1.参数判断
+        if(id == null)
+            throw new ServiceException(ResultCode.PARAM_IS_BLANK);
+
+        // 2.先查询文章表，后续查询一级评论表
+        Article article = articleDao.selectById(id);
+        if(article == null)
+            throw new ServiceException(ResultCode.ARTICLE_NOT_EXIST);
+
+        // 3.判断文章审核状态是否为”审核通过“，如果不是则不能查看
+        if(!"审核通过".equals(article.getStatus()))
+            throw new ServiceException(ResultCode.ARTICLE_IS_NOT_VISIBLE);
+
+        // 4.判断文章的发表人是否存在，如果不存在，则无法查看该文章
+        Long userId = article.getUserId();
+        User author = userDao.selectById(userId);
+        if(author == null)
+            throw new ServiceException(ResultCode.USER_NOT_EXIST);
+
+        // 5.判断当前用户是否能查看当前文章
+        String token = getToken();
+        System.out.println("token============== = " + token);
+
+        if(token == null) {
+            // 5.1 如果当前用户为游客，则不能查看收费文章
+            if(article.getCharged() == 1)
+                throw new ServiceException(ResultCode.ARTICLE_IS_NOT_VISIBLE);
+        }else {
+            // 5.2 如果当前用户为登录用户（非会员），则不能查看收费文章
+
+            //  根据token获取userId及isVip
+            //System.out.println("userId =========== " + userId);
+            Long currUserId = Long.parseLong(JwtUtil.getUserId(token));
+            // 获取当前登录账户的isVip值
+            Integer isVip = userDao.selectById(currUserId).getIsVip();
+
+            // bug: 用户充值成为vip以后，要重新登录，更新token中isVip值
+            //Map<String, Object> map = JwtUtil.getInfo(token);
+            //Integer isVip = (Integer) map.get("isVip");
+
+            // 如果当前用户不是文章作者，也不是Vip，同时文章收费，查看失败
+            // 注意：Long值比较使用 equals方法进行
+            if (!currUserId.equals(article.getUserId()) && article.getCharged() == 1 && isVip == 0) {
+                throw new ServiceException(ResultCode.ARTICLE_IS_NOT_VISIBLE);
+            }
+        }
+
+        // 6.复制文章对象属性 到 扩展类对象中
+        ArticleExtend articleExtend = new ArticleExtend();
+        BeanUtils.copyProperties(article, articleExtend);
+
+        // 7.往扩展类对象中补充作者
+        articleExtend.setAuthor(author);
+
+        // 8.根据文章id查询一级评论，按发表时间倒序，取最近3条
+        LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper();
+        wrapper.eq(Comment::getArticleId, id)
+            .orderByDesc(Comment::getPublishTime)
+            .last("limit 3");
+        List<Comment> comments = commentDao.selectList(wrapper);
+
+        // 9.填入查询到的一级评论到扩展类对象中
+        articleExtend.setComments(comments);
+
+        // 10.浏览量自增
+        articleExtend.setReadNum(redisUtil.increment(REDIS_KEY,article.getId().toString()));
+
+        return articleExtend;
+    }
+
+    //查询指定的文章（包含3条1级评论，还有作者）
+    //专门为前端提供：
     @Override
     public ArticleExtend queryByIdWithComments(Long id) {
         // 1.参数判断
@@ -172,9 +249,7 @@ public class ArticleServiceImpl implements IArticleService {
 
         // 5.判断当前用户是否能查看当前文章
         //  获取token，进而获取userId及isVip
-        System.out.println("userId =========== " + userId);
         String token = getToken();
-        System.out.println("token============== = " + token);
         Long currUserId = Long.parseLong(JwtUtil.getUserId(token));
         // 获取当前登录账户的isVip值
         Integer isVip = userDao.selectById(currUserId).getIsVip();
@@ -196,8 +271,8 @@ public class ArticleServiceImpl implements IArticleService {
         // 7.根据文章id查询一级评论，按发表时间倒序，取最近3条
         LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper();
         wrapper.eq(Comment::getArticleId, id)
-            .orderByDesc(Comment::getPublishTime)
-            .last("limit 3");
+                .orderByDesc(Comment::getPublishTime)
+                .last("limit 3");
         List<Comment> comments = commentDao.selectList(wrapper);
 
         // 8.填入查询到的一级评论到扩展类对象中
@@ -209,7 +284,7 @@ public class ArticleServiceImpl implements IArticleService {
     }
 
     @Override
-    public IPage<Article> query(ArticleParam param) {
+    public IPage<ArticleExtend> query(ArticleParam param) {
         Page<Article> page = new Page<>(param.getPageNum(), param.getPageSize());
 
         // 准备查询条件
@@ -227,7 +302,30 @@ public class ArticleServiceImpl implements IArticleService {
         //执行查询
         articleDao.selectPage(page, wrapper);
 
-        return page;
+        //获取查询的文章列表
+        List<Article> records = page.getRecords();
+        List<ArticleExtend> list = new ArrayList<>();
+
+        //遍历所有文章，添加作者信息
+        for (Article art : records) {
+            Long userId = art.getUserId();
+            User user = userDao.queryUserById(userId);
+            //如果用户已经被删除，则文章不可见
+            if(user == null)
+                continue;
+
+            ArticleExtend articleExtend = new ArticleExtend();
+            BeanUtils.copyProperties(art,articleExtend);
+            articleExtend.setAuthor(user);
+            list.add(articleExtend);
+        }
+
+        Page<ArticleExtend> pageInfo = new Page<>();
+        pageInfo.setRecords(list);
+        pageInfo.setTotal(page.getTotal());
+        pageInfo.setCurrent(page.getCurrent());
+
+        return pageInfo;
     }
 
     /**

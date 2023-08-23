@@ -2,7 +2,6 @@ package com.briup.cms.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.briup.cms.bean.Article;
-import com.briup.cms.bean.Category;
 import com.briup.cms.bean.extend.ArticleExtend;
 import com.briup.cms.bean.vo.ArticleParam;
 
@@ -22,7 +21,9 @@ public interface IArticleService {
 
 
 
-    IPage<Article> query(ArticleParam articleParam);
+    ArticleExtend queryByIdForCustomer(Long id);
+
+    IPage<ArticleExtend> query(ArticleParam articleParam);
 
     ArticleExtend queryById(Long id);
 }
