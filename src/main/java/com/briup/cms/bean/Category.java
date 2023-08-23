@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.briup.cms.util.excel.DefaultConverter;
+import com.briup.cms.util.excel.CategoryParentIdConverter;
 import com.briup.cms.util.excel.DeletedConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -54,7 +54,7 @@ public class Category implements Serializable {
 	/**
 	 * 栏目序号
 	 */
-	@ExcelProperty(value = "栏目序号", converter = DefaultConverter.class)
+	@ExcelProperty(value = "栏目序号")
 	private Integer orderNum;
 
 	/**
@@ -67,7 +67,7 @@ public class Category implements Serializable {
 	/**
 	 * 父栏目id
 	 */
-	@ExcelProperty(value = "父栏目")
+	@ExcelProperty(value = "父栏目", converter = CategoryParentIdConverter.class)
 	private Integer parentId;
 
 

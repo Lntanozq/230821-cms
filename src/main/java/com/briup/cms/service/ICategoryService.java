@@ -8,21 +8,23 @@ import java.util.List;
 
 public interface ICategoryService {
 
-    void insert(Category category);
+	void insert(Category category);
 
-    Category getCategoryById(Integer id);
+	Category getCategoryById(Integer id);
 
-    void update(Category category);
+	void update(Category category);
 
-    void deleteById(Integer id);
+	void deleteById(Integer id);
 
-    void deleteInBatch(List<Integer> ids);
+	void deleteInBatch(List<Integer> ids);
 
-    IPage<Category> query(Integer page, Integer pageSize, Integer parentId);
+	IPage<Category> query(Integer page, Integer pageSize, Integer parentId);
 
-    List<CategoryExtend> queryAllParent();
+	List<CategoryExtend> queryAllParent();
 
-    List<Category> queryAllOneLevel();
+	List<Category> queryAllOneLevel();
 
-    List<Category> queryAll();
+	List<Category> queryAll();
+
+	void InsertInBatch(List<Category> list);
 }

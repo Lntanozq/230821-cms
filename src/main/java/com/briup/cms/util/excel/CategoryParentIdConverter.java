@@ -12,7 +12,10 @@ import com.briup.cms.bean.Category;
 import com.briup.cms.exception.ServiceException;
 import com.briup.cms.service.ICategoryService;
 import com.briup.cms.util.ResultCode;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -22,13 +25,34 @@ import java.util.stream.Collectors;
  * @Description 栏目数据导入导出时, 对父栏目ID的处理
  * @date 2023/8/22-16:08
  */
+@Component
 public class CategoryParentIdConverter implements Converter<Integer> {
 
-	private final List<Category> list;
+	private static ICategoryService service;
 
-	public CategoryParentIdConverter(ICategoryService service) {
+	private static List<Category> list;
+
+	/**
+	 * 	`@Autowired` 可以修饰set方法 将静态属性以入参的方式传入(从spring容器中根据类型获取bean)
+	 */
+	@Autowired
+	public void setService(ICategoryService service) {
+		CategoryParentIdConverter.service = service;
+	}
+
+	public CategoryParentIdConverter() {
+	}
+
+	/**
+	 * `@PostConstruct` 该注解被用来修饰一个非静态的void（）方法
+	 * 被@PostConstruct 修饰的方法会在服务器加载Servlet的时候运行，并且只会被服务器执行一次。
+	 * PostConstruct在构造函数之后执行，init（）方法之前执行
+	 * 方法执行先后顺序为： Constructor > @Autowired > @PostConstruct
+	 */
+	@PostConstruct
+	public void setList(){
 		// 调用 ICategoryService 方法 查询所有一级栏目信息
-		this.list = service.queryAllOneLevel();
+		CategoryParentIdConverter.list = service.queryAllOneLevel();
 	}
 
 	/**
@@ -60,7 +84,8 @@ public class CategoryParentIdConverter implements Converter<Integer> {
 	 * @return Integer
 	 */
 	@Override
-	public Integer convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
+	public Integer convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty,
+	                                 GlobalConfiguration globalConfiguration) {
 		String value = cellData.getStringValue();
 		return converterStringToInteger(value);
 	}
@@ -100,7 +125,8 @@ public class CategoryParentIdConverter implements Converter<Integer> {
 	 * @param globalConfiguration 全局配置对象
 	 */
 	@Override
-	public WriteCellData<?> convertToExcelData(Integer value, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
+	public WriteCellData<?> convertToExcelData(Integer value, ExcelContentProperty contentProperty,
+	                                           GlobalConfiguration globalConfiguration) {
 		return convertToExcelData(value);
 	}
 
@@ -116,7 +142,7 @@ public class CategoryParentIdConverter implements Converter<Integer> {
 		return convertToExcelData(value);
 	}
 
-	private WriteCellData<?> convertToExcelData(Integer value){
+	private WriteCellData<?> convertToExcelData(Integer value) {
 		//在所有的父栏目中获取 栏目ID 与 待导出数据中父栏目ID 一致的 栏目【ID唯一】
 		List<Category> categoryList = list.stream()
 				.filter(cate -> Objects.equals(cate.getId(), value))
