@@ -70,7 +70,7 @@ public class LogAspect {
 		HttpServletRequest request = requestAttributes.getRequest();
 
 		//获取token,根据token拿到用户信息
-		String token = request.getHeader("token");
+		String token = request.getHeader("Authorization");
 		//已经进入到处理请求阶段,可以不用校验token,因为在登录认证拦截时已经校验过了
 		if (!StringUtils.hasText(token)) {
 			throw new RuntimeException("token不存在");

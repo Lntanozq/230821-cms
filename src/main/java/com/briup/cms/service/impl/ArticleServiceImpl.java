@@ -171,7 +171,9 @@ public class ArticleServiceImpl implements IArticleService {
 
         // 5.判断当前用户是否能查看当前文章
         //  获取token，进而获取userId及isVip
+        System.out.println("userId =========== " + userId);
         String token = getToken();
+        System.out.println("token============== = " + token);
         Long currUserId = Long.parseLong(JwtUtil.getUserId(token));
         // 获取当前登录账户的isVip值
         Integer isVip = userDao.selectById(currUserId).getIsVip();
