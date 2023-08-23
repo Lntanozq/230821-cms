@@ -80,7 +80,7 @@ public class ArticleController {
 	}
 
 	@ApiOperation(value = "分页+条件查询文章", notes = "")
-	@GetMapping("/query")
+	@PostMapping("/query")
 	public Result queryById(@RequestBody ArticleParam articleParam) {
 		IPage<Article> page = articleService.query(articleParam);
 
