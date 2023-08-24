@@ -96,7 +96,8 @@ public class CategoryServiceImpl implements ICategoryService {
 
 		//2.name判断：如果存在则必须唯一
 		LambdaQueryWrapper<Category> qw = new LambdaQueryWrapper<>();
-		if (category.getName() != null) {
+		//当待修改的栏目名字与原栏目名不一致时,需要判断待修改的名字在数据库中是否已被使用
+		if (category.getName() != null && !category.getName().equals(oldCategory.getName())) {
 			qw.eq(Category::getName, category.getName());
 			if (categoryDao.selectOne(qw) != null)
 				throw new ServiceException(ResultCode.CATEGORYNAME_HAS_EXISTED);
