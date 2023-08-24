@@ -80,8 +80,8 @@ public class CategoryController {
 			@ApiImplicitParam(name = "parentId", value = "父栏目id", dataType = "int", paramType = "query")
 	})
 	@GetMapping("/query")
-	public Result query(Integer page, Integer pageSize, Integer parentId) {
-		IPage<Category> p = categoryService.query(page, pageSize, parentId);
+	public Result query(Integer pageNum, Integer pageSize, Integer parentId) {
+		IPage<Category> p = categoryService.query(pageNum, pageSize, parentId);
 
 		return Result.success(p);
 	}
