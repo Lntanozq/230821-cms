@@ -54,17 +54,9 @@ public class ArticleController {
 		return Result.success("审核完成");
 	}
 
-	@ApiOperation(value = "根据id删除文章", notes = "id必须存在且有效")
-	@DeleteMapping("/deleteById/{id}")
-	public Result deleteById(@PathVariable Long id) {
-		articleService.deleteById(id);
-
-		return Result.success("删除成功");
-	}
-
-	@ApiOperation(value = "批量删除文章", notes = "需要提供多个id值")
-	@DeleteMapping("/deleteByIdAll")
-	public Result deleteInBatch(@RequestParam("ids") List<Long> ids) {
+	@ApiOperation(value = "根据id批量删除文章", notes = "id必须存在且有效")
+	@DeleteMapping("/deleteById/{ids}")
+	public Result deleteInBatch(@PathVariable("ids") List<Long> ids) {
 		articleService.deleteInBatch(ids);
 
 		return Result.success("删除成功");

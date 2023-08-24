@@ -13,8 +13,6 @@ public interface IArticleService {
 
     void reviewArticle(Long id, String status);
 
-    void deleteById(Long id);
-
     void deleteInBatch(List<Long> ids);
 
     ArticleExtend queryByIdWithComments(Long id);

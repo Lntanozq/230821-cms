@@ -129,16 +129,6 @@ public class ArticleServiceImpl implements IArticleService {
     }
 
     @Override
-    public void deleteById(Long id) {
-        // 1.参数判断，必须存在且有效
-        if(id == null || articleDao.selectById(id) == null)
-            throw new ServiceException(ResultCode.PARAM_IS_INVALID);
-
-        // 2.删除文章
-        articleDao.deleteById(id);
-    }
-
-    @Override
     public void deleteInBatch(List<Long> ids) {
         // 1.参数判断
         if(ids == null || ids.size() == 0)
@@ -271,7 +261,7 @@ public class ArticleServiceImpl implements IArticleService {
         BeanUtils.copyProperties(article, articleExtend);
 
         // 7.根据文章id查询一级评论，按发表时间倒序，取最近3条
-        LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper();
+        LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Comment::getArticleId, id)
                 .orderByDesc(Comment::getPublishTime)
                 .last("limit 3");

@@ -25,7 +25,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtInterceptor())
-                .addPathPatterns("/auth/**");
+                .addPathPatterns("/auth/**")
+                //查询所有一级栏目及其二级栏目的接口不需要被校验(供前台使用)
+                .excludePathPatterns("/auth/category/queryAllParent");
 
         //3.注册vip拦截器对象并设置拦截路径
         registry.addInterceptor(vipCheckInterceptor)
