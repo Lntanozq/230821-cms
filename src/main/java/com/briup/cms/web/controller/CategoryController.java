@@ -46,7 +46,8 @@ public class CategoryController {
 	@ApiOperation("根据id查询栏目信息")
 	@GetMapping("/getCategoryById/{id}")
 	public Result getCategoryById(@PathVariable("id") Integer id) {
-		return Result.success();
+		Category category = categoryService.getCategoryById(id);
+		return Result.success(category);
 	}
 
 	@ApiOperation(value = "更新栏目", notes = "栏目名必须唯一，栏目级别不能改动")
