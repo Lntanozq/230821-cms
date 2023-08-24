@@ -61,4 +61,10 @@ public class LoginController {
 
         return Result.success(user);
     }
+
+    @ApiOperation(value = "退出登录")
+    @PostMapping(value = "/logout")
+    public Result logout(){
+        return Result.success();
+    }
 }

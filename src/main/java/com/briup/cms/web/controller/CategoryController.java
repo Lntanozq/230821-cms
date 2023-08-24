@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -103,7 +104,7 @@ public class CategoryController {
 	}
 
 	@ApiOperation("导入栏目数据")
-	@PostMapping("/import")
+	@PostMapping( "/import")
 	public Result imports(@RequestPart MultipartFile file) {
 		//获取数据
 		List<Category> list = excelUtils.importData(file, Category.class, new CategoryListener());
