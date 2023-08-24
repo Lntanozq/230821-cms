@@ -207,6 +207,8 @@ public class ArticleServiceImpl implements IArticleService {
         BeanUtils.copyProperties(article, articleExtend);
 
         // 7.往扩展类对象中补充作者
+        //额外注释密码，不能返回给前端
+        author.setPassword(null);
         articleExtend.setAuthor(author);
 
         // 8.根据文章id查询一级评论，按发表时间倒序，取最近3条
@@ -316,6 +318,8 @@ public class ArticleServiceImpl implements IArticleService {
 
             ArticleExtend articleExtend = new ArticleExtend();
             BeanUtils.copyProperties(art,articleExtend);
+            //额外注释密码，不能返回给前端
+            user.setPassword(null);
             articleExtend.setAuthor(user);
             list.add(articleExtend);
         }
