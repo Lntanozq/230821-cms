@@ -94,6 +94,13 @@ public class CategoryController {
 		return Result.success(list);
 	}
 
+	@ApiOperation("获取所有父栏目")
+	@GetMapping("/queryAllOneLevel")
+	public Result queryAllParentWithoutTwo(){
+		List<Category> list = categoryService.queryAllOneLevel();
+		return Result.success(list);
+	}
+
 	@ApiOperation("导入栏目数据")
 	@PostMapping("/import")
 	public Result imports(@RequestPart MultipartFile file) {
