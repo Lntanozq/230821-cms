@@ -129,16 +129,6 @@ public class ArticleServiceImpl implements IArticleService {
     }
 
     @Override
-    public void deleteById(Long id) {
-        // 1.参数判断，必须存在且有效
-        if(id == null || articleDao.selectById(id) == null)
-            throw new ServiceException(ResultCode.PARAM_IS_INVALID);
-
-        // 2.删除文章
-        articleDao.deleteById(id);
-    }
-
-    @Override
     public void deleteInBatch(List<Long> ids) {
         // 1.参数判断
         if(ids == null || ids.size() == 0)
@@ -207,6 +197,8 @@ public class ArticleServiceImpl implements IArticleService {
         BeanUtils.copyProperties(article, articleExtend);
 
         // 7.往扩展类对象中补充作者
+        //额外注释密码，不能返回给前端
+        author.setPassword(null);
         articleExtend.setAuthor(author);
 
         // 8.根据文章id查询一级评论，按发表时间倒序，取最近3条
@@ -269,7 +261,7 @@ public class ArticleServiceImpl implements IArticleService {
         BeanUtils.copyProperties(article, articleExtend);
 
         // 7.根据文章id查询一级评论，按发表时间倒序，取最近3条
-        LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper();
+        LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Comment::getArticleId, id)
                 .orderByDesc(Comment::getPublishTime)
                 .last("limit 3");
@@ -316,6 +308,8 @@ public class ArticleServiceImpl implements IArticleService {
 
             ArticleExtend articleExtend = new ArticleExtend();
             BeanUtils.copyProperties(art,articleExtend);
+            //额外注释密码，不能返回给前端
+            user.setPassword(null);
             articleExtend.setAuthor(user);
             list.add(articleExtend);
         }

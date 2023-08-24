@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.briup.cms.bean.Log;
+import com.briup.cms.bean.vo.LogExportParam;
 import com.briup.cms.bean.vo.LogParam;
 import com.briup.cms.dao.LogDao;
 import com.briup.cms.exception.ServiceException;
@@ -11,8 +12,11 @@ import com.briup.cms.service.ILogService;
 import com.briup.cms.util.ResultCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author shaoyb
@@ -23,39 +27,53 @@ import java.time.LocalDateTime;
 @Service
 public class LogServiceImpl implements ILogService {
 
-    @Autowired
-    private LogDao logDao;
+	@Autowired
+	private LogDao logDao;
 
-    @Override
-    public void save(Log log) {
-        if(log == null)
-            throw new ServiceException(ResultCode.PARAM_IS_BLANK);
+	@Override
+	public IPage<Log> query(LogParam param) {
+		// 1.参数判断
+		if (param == null || param.getPageNum() == null || param.getPageSize() == null)
+			throw new ServiceException(ResultCode.PARAM_IS_BLANK);
 
-        // 设置日志写入时间
-        log.setCreateTime(LocalDateTime.now());
-        logDao.insert(log);
-    }
+		// 2.查询条件准备，按时间倒序
+		IPage<Log> page = new Page<>(param.getPageNum(), param.getPageSize());
 
-    @Override
-    public IPage<Log> query(LogParam param) {
-        // 1.参数判断
-        if(param == null || param.getPageNum() == null || param.getPageSize() == null)
-            throw new ServiceException(ResultCode.PARAM_IS_BLANK);
+		//获取查询条件
+		LambdaQueryWrapper<Log> wrapper = getQueryWrapper(param.getUsername(), param.getRequestUrl(),
+				param.getStartTime(), param.getEndTime());
 
-        // 2.查询条件准备，按时间倒序
-        IPage<Log> page = new Page<>(param.getPageNum(), param.getPageSize());
-        String userName = param.getUserName();
-        LocalDateTime startTime = param.getStartTime();
-        LocalDateTime endTime = param.getEndTime();
-        LambdaQueryWrapper<Log> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(userName != null, Log::getUsername, userName)
-               .le(endTime != null, Log::getCreateTime, endTime)
-               .ge(startTime != null, Log::getCreateTime, startTime)
-               .orderByDesc(Log::getCreateTime);
+		// 3.执行分页查询
+		logDao.selectPage(page, wrapper);
 
-        // 3.执行分页查询
-        logDao.selectPage(page, wrapper);
+		return page;
+	}
 
-        return page;
-    }
+	@Override
+	public List<Log> queryForExport(LogExportParam param) {
+		//条件判断
+		if (param == null) {
+			throw new ServiceException(ResultCode.PARAM_IS_BLANK);
+		}
+
+		//获取查询条件
+		LambdaQueryWrapper<Log> wrapper = getQueryWrapper(param.getUsername(), param.getRequestUrl(),
+				param.getStartTime(), param.getEndTime());
+		//设置日志导出条数
+		wrapper.last(Objects.nonNull(param.getCount()), "limit " + param.getCount());
+
+		return logDao.selectList(wrapper);
+	}
+
+	private LambdaQueryWrapper<Log> getQueryWrapper(String username, String url, LocalDateTime startTime, LocalDateTime endTime) {
+		LambdaQueryWrapper<Log> wrapper = new LambdaQueryWrapper<>();
+
+		wrapper.eq(StringUtils.hasText(username), Log::getUsername, username)
+				.eq(StringUtils.hasText(url), Log::getRequestUrl, url)
+				.le(endTime != null, Log::getCreateTime, endTime)
+				.ge(startTime != null, Log::getCreateTime, startTime)
+				.orderByDesc(Log::getCreateTime);
+
+		return wrapper;
+	}
 }

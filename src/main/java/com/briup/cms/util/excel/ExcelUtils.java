@@ -189,13 +189,14 @@ public class ExcelUtils {
 	 * @throws UnsupportedEncodingException 不支持的编码异常
 	 */
 	private void setExcelResponseProp(HttpServletResponse response, String rawFileName) throws UnsupportedEncodingException {
-		//设置内容类型
-		response.setContentType("application/octet-stream");
 		//设置编码格式
 		response.setCharacterEncoding("utf-8");
 		//设置导出文件名称（避免乱码）
 		String fileName = URLEncoder.encode(rawFileName.concat(".xlsx"), "UTF-8");
-		// 设置响应头
-		response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName);
+		//设置内容类型
+		response.setHeader("content-type", "application/octet-stream");
+		//设置响应的编码格式
+		response.setHeader("content-disposition",
+				"attachment;filename=" + fileName);
 	}
 }
