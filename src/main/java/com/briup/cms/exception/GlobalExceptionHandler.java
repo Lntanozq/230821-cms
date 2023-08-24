@@ -2,13 +2,13 @@ package com.briup.cms.exception;
 
 import com.briup.cms.util.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * 全局异常处理
  */
-//@ControllerAdvice + @ResponseBody
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -19,7 +19,9 @@ public class GlobalExceptionHandler {
         if (e instanceof ServiceException) {
             log.error(e.getMessage());
             result = Result.failure(((ServiceException) e).getResultCode());
-        }else {
+        }else if (e instanceof DuplicateKeyException){
+            result = Result.failure(500,"该数据已存在,请检查后重新输入!");
+        } else {
             log.error(e.getMessage());
             result = Result.failure(500, "服务器意外错误：" + e.getMessage());
         }
