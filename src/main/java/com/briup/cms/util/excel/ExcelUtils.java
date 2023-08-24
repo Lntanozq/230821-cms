@@ -8,6 +8,7 @@ import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.builder.ExcelWriterBuilder;
 import com.alibaba.excel.write.metadata.WriteSheet;
+import lombok.Cleanup;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,7 +34,7 @@ public class ExcelUtils {
 	@SneakyThrows
 	public <T> List<T> importData(MultipartFile file, Class<T> tClass,
 	                              AnalysisEventListener<T> listener) {
-		return importData(file, tClass, listener, (Converter<?>) null);
+		return importData(file, tClass, listener, null);
 	}
 
 	/**
@@ -42,30 +43,31 @@ public class ExcelUtils {
 	 * @param file       数据文件对象
 	 * @param tClass     待导入数据的类型
 	 * @param listener   自定义监听器
-	 * @param converters 自定义参数转换器列表
+	 * @param converter 自定义参数转换器
 	 * @param <T>        泛型
 	 * @return 导入的数据
 	 */
 	@SneakyThrows
 	public <T> List<T> importData(MultipartFile file, Class<T> tClass,
-	                              AnalysisEventListener<T> listener, Converter<?>... converters) {
+	                              AnalysisEventListener<T> listener, Converter<?> converter) {
 		//获取文件的输入流
+		@Cleanup//添加一个finally代码块进行关闭资源的操作
 		InputStream in = file.getInputStream();
 
 		//调用read方法
 		ExcelReaderBuilder readerBuilder = EasyExcel.read(in)
 				//注册自定义监听器，字段校验可以在监听器内实现
-				.registerReadListener(listener);
+				.registerReadListener(listener)
+				//对应导入的实体类
+				.head(tClass);
 
 		//注册自定义参数转换器
-		if (converters != null) {
-			for (Converter<?> converter : converters) {
-				readerBuilder.registerConverter(converter);
-			}
+		if (converter != null) {
+			readerBuilder.registerConverter(converter);
 		}
 
-		//对应导入的实体类
-		List<T> list = readerBuilder.head(tClass)
+
+		List<T> list = readerBuilder
 				//导入数据的sheet页编号，0代表第一个sheet页，如果不填，则会导入所有sheet页的数据
 				.sheet()
 				//列表头行数，1代表列表头有1行，第二行开始为数据行
@@ -73,8 +75,6 @@ public class ExcelUtils {
 				//开始读Excel，返回一个List<T>集合，继续后续入库操作
 				.doReadSync();
 
-		//关闭资源
-		in.close();
 
 		return list;
 	}
@@ -101,6 +101,7 @@ public class ExcelUtils {
 	public <T> void exportExcel(HttpServletResponse response, List<T> list, Class<T> tClass,
 	                            String fileName, Converter<?>... converters) {
 		//获取输出流
+		@Cleanup
 		OutputStream outputStream = response.getOutputStream();
 		//设置响应结果
 		this.setExcelResponseProp(response, fileName);
@@ -116,7 +117,6 @@ public class ExcelUtils {
 		//导出完毕后刷新等收尾工作
 		excelWriter.finish();
 		outputStream.flush();
-		outputStream.close();
 	}
 
 	/**
@@ -141,6 +141,7 @@ public class ExcelUtils {
 	public <T> void exportManySheet(HttpServletResponse response, List<T> list, Class<T> tClass,
 	                                String fileName, Converter<?>... converter) {
 		//获取输出流
+		@Cleanup
 		OutputStream outputStream = response.getOutputStream();
 		//设置响应结果
 		this.setExcelResponseProp(response, fileName);
@@ -161,7 +162,6 @@ public class ExcelUtils {
 		//导出完毕后刷新等收尾工作
 		excelWriter.finish();
 		outputStream.flush();
-		outputStream.close();
 	}
 
 	/**
