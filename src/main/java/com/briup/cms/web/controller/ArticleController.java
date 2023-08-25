@@ -79,5 +79,11 @@ public class ArticleController {
 		return Result.success(page);
 	}
 
+	@ApiOperation("查询所有文章")
+	@GetMapping("/getAllArticle")
+	public Result getAllArticle(){
+		return Result.success(articleService.list());
+	}
+
 }
 

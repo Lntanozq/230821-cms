@@ -24,4 +24,6 @@ public interface IArticleService {
     IPage<ArticleExtend> query(ArticleParam articleParam);
 
     ArticleExtend queryById(Long id);
+
+	List<Article> list();
 }
