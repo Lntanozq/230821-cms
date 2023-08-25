@@ -92,7 +92,7 @@ public class CommentController {
     }
 
     @ApiOperation(value = "分页+条件查询", notes = "查询条件：关键字、userId、articleId、发表时间范围")
-    @Logging("分页查询文章信息")
+    @Logging("分页查询评论信息")
     @PostMapping("/query")
     public Result query(@RequestBody CommentQueryParam param) {
         IPage<CommentExtend> page = commentService.query(param);
