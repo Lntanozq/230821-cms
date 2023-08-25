@@ -6,7 +6,6 @@ import com.briup.cms.bean.Log;
 import com.briup.cms.dao.LogDao;
 import com.briup.cms.util.IPUtils;
 import com.briup.cms.util.JwtUtil;
-import com.briup.cms.util.Result;
 import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
 import lombok.SneakyThrows;
@@ -99,9 +98,7 @@ public class LogAspect {
 		Object obj = pjp.proceed();
 
 		//设置响应结果
-		Result result = (Result) obj;
-		result.setData(null);
-		sysLog.setResultJson(gson.toJson(result));
+		sysLog.setResultJson(gson.toJson(obj));
 
 		log.info("响应结果为:{}", sysLog.getResultJson());
 
