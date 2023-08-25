@@ -1,8 +1,6 @@
 package com.briup.cms.bean;
 
 
-import com.alibaba.excel.annotation.ExcelIgnore;
-import com.alibaba.excel.annotation.ExcelProperty;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -26,57 +24,46 @@ public class Log implements Serializable {
     * 主键ID
     */
     @TableId(type = IdType.AUTO)
-    @ExcelIgnore
     private Long id;
     /**
     * 操作用户
     */
-    @ExcelProperty("操作用户")
     private String username;
     /**
     * 接口描述信息
     */
-    @ExcelProperty("接口描述信息")
     private String businessName;
     /**
     * 请求接口
     */
-    @ExcelProperty("请求接口")
     private String requestUrl;
     /**
     * 请求方式
     */
-    @ExcelProperty("请求方式")
     private String requestMethod;
     /**
     * ip
     */
-    @ExcelProperty("ip")
     private String ip;
     /**
     * ip来源
     */
-    @ExcelProperty("ip来源")
     private String source;
     /**
     * 请求接口耗时
     */
-    @ExcelProperty("请求接口耗时")
     private Long spendTime;
     /**
     * 创建时间
     */
-    @ExcelProperty("创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private LocalDateTime createTime;
     /**
     * 请求参数
     */
-    @ExcelProperty("请求参数")
     private String paramsJson;
     /**
     * 响应参数
     */
-    @ExcelProperty("响应参数")
     private String resultJson;
 }

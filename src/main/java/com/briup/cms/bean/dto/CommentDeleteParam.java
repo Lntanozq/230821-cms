@@ -1,4 +1,4 @@
-package com.briup.cms.bean.vo;
+package com.briup.cms.bean.dto;
 
 import lombok.Data;
 

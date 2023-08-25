@@ -1,9 +1,9 @@
 package com.briup.cms.web.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.briup.cms.bean.Log;
-import com.briup.cms.bean.vo.LogExportParam;
-import com.briup.cms.bean.vo.LogParam;
+import com.briup.cms.bean.dto.LogExportParam;
+import com.briup.cms.bean.dto.LogParam;
+import com.briup.cms.bean.vo.LogVO;
 import com.briup.cms.service.ILogService;
 import com.briup.cms.util.Result;
 import com.briup.cms.util.excel.ExcelUtils;
@@ -35,7 +35,7 @@ public class LogController {
 	// @Logging //思考：此处是否有必要加日志注解
 	@PostMapping("/query")
 	public Result query(@RequestBody LogParam param) {
-		IPage<Log> page = logService.query(param);
+		IPage<LogVO> page = logService.query(param);
 
 		return Result.success(page);
 	}
@@ -45,9 +45,9 @@ public class LogController {
 	@GetMapping(value = "/export", produces = "application/octet-stream")
 	public void export(HttpServletResponse response, LogExportParam logExportParam) {
 		//1.获取数据
-		List<Log> list = logService.queryForExport(logExportParam);
+		List<LogVO> list = logService.queryForExport(logExportParam);
 		//2.导出数据
-		excelUtils.exportExcel(response, list, Log.class, "日志信息表");
+		excelUtils.exportExcel(response, list, LogVO.class, "日志信息表");
 	}
 
 }

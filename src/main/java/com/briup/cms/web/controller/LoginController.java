@@ -1,7 +1,7 @@
 package com.briup.cms.web.controller;
 
 import com.briup.cms.bean.User;
-import com.briup.cms.bean.vo.LoginParam;
+import com.briup.cms.bean.dto.LoginParam;
 import com.briup.cms.service.IUserService;
 import com.briup.cms.util.JwtUtil;
 import com.briup.cms.util.MD5Utils;

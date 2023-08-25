@@ -9,10 +9,10 @@ import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -22,8 +22,10 @@ import java.util.UUID;
 @Component
 public class UploadUtils {
 
-	@Resource
+	@Autowired
 	private UploadProperties uploadProperties;
+	@Autowired
+	private Gson gson;
 
 	/**
 	 * @param file 待上传的文件
@@ -54,7 +56,7 @@ public class UploadUtils {
 				upToken, null, null);
 
 		//解析上传成功的结果
-		DefaultPutRet putRet = new Gson().fromJson(response.bodyString(),
+		DefaultPutRet putRet = gson.fromJson(response.bodyString(),
 				DefaultPutRet.class);
 
 		log.info("文件上传成功,文件地址:{}", uploadProperties.getBaseUrl() + fileName);

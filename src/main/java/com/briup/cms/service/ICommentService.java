@@ -5,8 +5,8 @@ import com.briup.cms.bean.Comment;
 import com.briup.cms.bean.Subcomment;
 import com.briup.cms.bean.extend.CommentExtend;
 import com.briup.cms.bean.extend.SubCommentExtend;
-import com.briup.cms.bean.vo.CommentDeleteParam;
-import com.briup.cms.bean.vo.CommentQueryParam;
+import com.briup.cms.bean.dto.CommentDeleteParam;
+import com.briup.cms.bean.dto.CommentQueryParam;
 
 import java.util.List;
 

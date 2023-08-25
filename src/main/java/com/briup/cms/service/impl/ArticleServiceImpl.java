@@ -8,7 +8,7 @@ import com.briup.cms.bean.Category;
 import com.briup.cms.bean.Comment;
 import com.briup.cms.bean.User;
 import com.briup.cms.bean.extend.ArticleExtend;
-import com.briup.cms.bean.vo.ArticleParam;
+import com.briup.cms.bean.dto.ArticleParam;
 import com.briup.cms.dao.ArticleDao;
 import com.briup.cms.dao.CategoryDao;
 import com.briup.cms.dao.CommentDao;

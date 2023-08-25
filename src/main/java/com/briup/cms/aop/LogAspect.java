@@ -6,6 +6,7 @@ import com.briup.cms.bean.Log;
 import com.briup.cms.dao.LogDao;
 import com.briup.cms.util.IPUtils;
 import com.briup.cms.util.JwtUtil;
+import com.briup.cms.util.Result;
 import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
 import lombok.SneakyThrows;
@@ -35,7 +36,9 @@ import java.lang.reflect.Method;
 public class LogAspect {
 
 	@Autowired
-	private LogDao logMapper;
+	private LogDao logDao;
+	@Autowired
+	private Gson gson;
 
 
 	//定义切入点: 当执行Controller包下的方法 并且方法上添加了日志注解 需要使用切面增强
@@ -51,8 +54,6 @@ public class LogAspect {
 
 		//日志对象
 		Log sysLog = new Log();
-		//Gson对象,将对象转为json字符串
-		Gson gson = new Gson();
 
 		//获取接口信息,即接口的用途描述
 		MethodSignature signature = (MethodSignature) pjp.getSignature();
@@ -98,7 +99,10 @@ public class LogAspect {
 		Object obj = pjp.proceed();
 
 		//设置响应结果
-		sysLog.setResultJson(gson.toJson(obj));
+		Result result = (Result) obj;
+		result.setData(null);
+		sysLog.setResultJson(gson.toJson(result));
+
 		log.info("响应结果为:{}", sysLog.getResultJson());
 
 		//设置处理请求的结束时间
@@ -108,7 +112,7 @@ public class LogAspect {
 		log.info("请求耗时为:{}", sysLog.getSpendTime());
 
 		//将日志存入数据库中
-		logMapper.insert(sysLog);
+		logDao.insert(sysLog);
 
 		return obj;
 	}
