@@ -6,6 +6,7 @@ import com.briup.cms.bean.extend.CategoryExtend;
 import com.briup.cms.service.ICategoryService;
 import com.briup.cms.util.Result;
 import com.briup.cms.util.excel.CategoryListener;
+import com.briup.cms.util.excel.CategoryParentIdConverter;
 import com.briup.cms.util.excel.ExcelUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -98,7 +99,7 @@ public class CategoryController {
 
 	@ApiOperation("获取所有父栏目")
 	@GetMapping("/queryAllOneLevel")
-	public Result queryAllParentWithoutTwo(){
+	public Result queryAllParentWithoutTwo() {
 		List<Category> list = categoryService.queryAllOneLevel();
 		return Result.success(list);
 	}
@@ -106,16 +107,21 @@ public class CategoryController {
 	@ApiOperation("导入栏目数据")
 	@PostMapping( "/import")
 	public Result imports(@RequestPart MultipartFile file) {
+		//导入前,更新一级栏目集合,防止在导入前数据库中的一级栏目被更新
+		CategoryParentIdConverter.list = categoryService.queryAllOneLevel();
 		//获取数据
 		List<Category> list = excelUtils.importData(file, Category.class, new CategoryListener());
 		//导入数据到数据库中
 		categoryService.InsertInBatch(list);
+
 		return Result.success("数据导入成功");
 	}
 
 	@ApiOperation("导出栏目数据")
 	@GetMapping(value = "/export", produces = "application/octet-stream")
 	public void exports(HttpServletResponse response) {
+		//导出前,更新一级栏目集合,防止在导出前数据库中的一级栏目被更新
+		CategoryParentIdConverter.list = categoryService.queryAllOneLevel();
 		//1.获取栏目数据
 		List<Category> list = categoryService.queryAll();
 		//2.导出数据
