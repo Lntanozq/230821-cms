@@ -21,8 +21,18 @@
                     select="com.briup.cms.dao.SubcommentDao.queryByParentId"/>
     </resultMap>
 
+    <resultMap id="CommentExtendBaseResult" type="com.briup.cms.bean.extend.CommentExtend">
+        <id column="id" property="id"/>
+        <result column="content" property="content"/>
+        <result column="user_id" property="userId"/>
+        <result column="article_id" property="articleId"/>
+        <result column="publish_time" property="publishTime"/>
+    </resultMap>
+
+
+
     <select id="query" resultMap="CommentExtendResult">
-        select *
+        select id,content,publish_time,user_id,article_id
         from cms_comment
         where deleted = 0
             and user_id in (
@@ -70,5 +80,6 @@
             and article_id = #{articleId}
         order by publish_time desc
     </select>
+
 
 </mapper>

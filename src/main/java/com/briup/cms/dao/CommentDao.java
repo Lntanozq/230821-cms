@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.briup.cms.bean.Comment;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.briup.cms.bean.extend.CommentExtend;
+import com.briup.cms.bean.extend.UserExtend;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
@@ -29,4 +30,6 @@ public interface CommentDao extends BaseMapper<Comment> {
                                @Param("articleId") Long articleId,
                                @Param("startTime") LocalDateTime startTime,
                                @Param("endTime") LocalDateTime endTime);
+
+   // IPage<CommentExtend> queryAll(IPage<UserExtend> page, @Param("keyword") String keyword,);
 }

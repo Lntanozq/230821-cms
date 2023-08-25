@@ -95,6 +95,7 @@ public class CommentController {
     @Logging("分页查询文章信息")
     @PostMapping("/query")
     public Result query(@RequestBody CommentQueryParam param) {
+        System.out.println("param: " + param);
         IPage<CommentExtend> page = commentService.query(param);
 
         return Result.success(page);

@@ -94,7 +94,7 @@ public class UserController {
 
     @ApiOperation(value = "分页+条件查询用户", notes = "用户中要含角色信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页码", required = true, dataType = "int", paramType = "query"),
+            @ApiImplicitParam(name = "pageNum", value = "页码", required = true, dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "pageSize", value = "每页条数", required = true, dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "username", value = "用户名", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "status", value = "状态：启用|禁用", dataType = "String", paramType = "query"),

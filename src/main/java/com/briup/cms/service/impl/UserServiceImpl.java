@@ -168,8 +168,8 @@ public class UserServiceImpl implements IUserService {
 		IPage<UserExtend> page = new Page<>(pageNum, pageSize);
 		userDao.queryAllUserWithRole(page, username, status, roleId, isVip);
 
-//        System.out.println(page.getTotal());
-//        System.out.println(page.getRecords().size());
+        System.out.println(page.getTotal());
+        System.out.println(page.getRecords().size());
 
 		return page;
 	}
