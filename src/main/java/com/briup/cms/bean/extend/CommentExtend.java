@@ -15,7 +15,7 @@ import java.util.List;
 @Data
 public class CommentExtend extends Comment {
     // 评论人
-    private User auther;
+    private User author;
 
     // 子评论s
     private List<SubCommentExtend> childComments;

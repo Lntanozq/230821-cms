@@ -15,7 +15,7 @@
         <result column="user_id" property="userId"/>
         <result column="article_id" property="articleId"/>
         <result column="publish_time" property="publishTime"/>
-        <association property="auther" column="user_id"
+        <association property="author" column="user_id"
                      select="com.briup.cms.dao.UserDao.queryUserById"/>
         <collection property="childComments" column="id"
                     select="com.briup.cms.dao.SubcommentDao.queryByParentId"/>
