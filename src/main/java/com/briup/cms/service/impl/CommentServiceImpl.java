@@ -211,13 +211,11 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     public IPage<CommentExtend> query(CommentQueryParam param) {
         // 1.参数判断
-        Integer pageNum = param.getPageNum();
-        Integer pageSize = param.getPageSize();
-        if(param == null || pageNum == null || pageSize == null)
+        if(param == null || param.getPageNum() == null || param.getPageSize() == null)
             throw new ServiceException(ResultCode.PARAM_IS_BLANK);
 
         // 2.分页+条件查询
-        IPage<CommentExtend> page = new Page<>(pageNum, pageSize);
+        IPage<CommentExtend> page = new Page<>(param.getPageNum(), param.getPageSize());
         commentDao.query(page, param.getKeyword(),
                 param.getUserId(), param.getArticleId(),
                 param.getStartTime(), param.getEndTime());
