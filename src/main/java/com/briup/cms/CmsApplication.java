@@ -9,9 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling  //开启定时器任务
 public class CmsApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(CmsApplication.class, args);
     }
-
 }

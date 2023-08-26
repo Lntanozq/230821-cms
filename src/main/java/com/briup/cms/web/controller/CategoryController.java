@@ -68,11 +68,10 @@ public class CategoryController {
 		return Result.success("删除成功");
 	}
 
-	@ApiOperation(value = "批量删除栏目", notes = "需要提供多个id值")
-	@DeleteMapping("/deleteByIdAll")
-	public Result deleteCategoryInBatch(@RequestParam("ids") List<Integer> ids) {
+	@ApiOperation(value = "单个删除+批量删除栏目", notes = "需要提供一个或多个id值")
+	@DeleteMapping("/deleteByIdAll/{ids}")
+	public Result deleteCategoryInBatch(@PathVariable("ids") List<Integer> ids) {
 		categoryService.deleteInBatch(ids);
-
 		return Result.success("删除成功");
 	}
 
