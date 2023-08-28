@@ -18,7 +18,7 @@
 
     <resultMap id="CategoryWithChildsResult" type="com.briup.cms.bean.extend.CategoryExtend"
         extends="BaseCategoryResult">
-        <collection property="cates" column="id" select="queryByParentId"></collection>
+        <collection property="cates" column="id" select="queryByParentId"/>
     </resultMap>
 
     <select id="queryByParentId" resultMap="BaseCategoryResult">
@@ -26,6 +26,7 @@
         from cms_category
         where deleted = 0
             and parent_id = #{parentId}
+        order by order_num
     </select>
 
     <select id="queryAllWithCates" resultMap="CategoryWithChildsResult">

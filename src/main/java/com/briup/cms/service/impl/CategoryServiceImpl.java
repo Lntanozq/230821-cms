@@ -13,7 +13,6 @@ import com.briup.cms.util.ResultCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -175,14 +174,14 @@ public class CategoryServiceImpl implements ICategoryService {
 
 	//分页+条件查询(根据parent_id)
 	@Override
-	public IPage<Category> query(Integer page, Integer pageSize, Integer parentId) {
+	public IPage<Category> query(Integer pageNum, Integer pageSize, Integer parentId) {
 		//1.参数判断
-		if (page == null || page <= 0 || pageSize == null || pageSize <= 0)
+		if (pageNum == null || pageNum <= 0 || pageSize == null || pageSize <= 0)
 			throw new ServiceException(ResultCode.PARAM_IS_INVALID);
 
 		//2.分页查询 设置排序次序
 		//  select * from cms_category where deleted = 0 and parent_id = ? order by parent_id, order_num;
-		IPage<Category> p = new Page<>(page, pageSize);
+		IPage<Category> p = new Page<>(pageNum, pageSize);
 		LambdaQueryWrapper<Category> qw = new LambdaQueryWrapper<>();
 		qw.eq(parentId != null, Category::getParentId, parentId);
 		qw.orderByAsc(Category::getParentId)
@@ -202,21 +201,7 @@ public class CategoryServiceImpl implements ICategoryService {
 		if (list == null || list.size() == 0)
 			throw new ServiceException(ResultCode.CATEGORY_NOT_EXIST);
 
-		List<CategoryExtend> allList = new ArrayList<>();
-		for (CategoryExtend pCate : list) {
-			Integer pId = pCate.getId();
-
-			LambdaQueryWrapper<Category> qw = new LambdaQueryWrapper<>();
-			qw.eq(Category::getParentId, pId)
-					.orderByAsc(Category::getOrderNum);
-			List<Category> categories = categoryDao.selectList(qw);
-
-			pCate.setCates(categories);
-
-			allList.add(pCate);
-		}
-
-		return allList;
+		return list;
 	}
 
 	//查询得到所有的一级栏目, 不含二级栏目 ,用于导入时转换名称和ID

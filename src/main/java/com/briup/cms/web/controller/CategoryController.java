@@ -13,7 +13,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -77,7 +76,7 @@ public class CategoryController {
 
 	@ApiOperation(value = "分页查询所有栏目")
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "page", value = "当前页", dataType = "int", required = true, defaultValue = "1", paramType = "query"),
+			@ApiImplicitParam(name = "pageNum", value = "当前页", dataType = "int", required = true, defaultValue = "1", paramType = "query"),
 			@ApiImplicitParam(name = "pageSize", value = "每页数量", dataType = "int", required = true, defaultValue = "4", paramType = "query"),
 			@ApiImplicitParam(name = "parentId", value = "父栏目id", dataType = "int", paramType = "query")
 	})
