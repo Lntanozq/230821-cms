@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ISlideshowService {
 
-    Slideshow queryOneById(Integer id);
+    Slideshow queryById(Integer id);
 
     void deleteInBatch(List<Integer> ids);
 

@@ -30,7 +30,7 @@ public class SlideshowServiceImpl implements ISlideshowService {
 	private SlideshowDao slideshowDao;
 
 	@Override
-	public Slideshow queryOneById(Integer id) {
+	public Slideshow queryById(Integer id) {
 		return slideshowDao.selectById(id);
 	}
 
