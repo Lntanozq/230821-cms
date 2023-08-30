@@ -36,19 +36,35 @@ public class SlideshowServiceImpl implements ISlideshowService {
 
 	@Override
 	public void saveOrUpdate(Slideshow slideshow) {
-		//1.判断轮播图url是否唯一
-		if (slideshow.getUrl() != null) {
-			LambdaQueryWrapper<Slideshow> qw = new LambdaQueryWrapper<>();
-			qw.eq(Slideshow::getUrl, slideshow.getUrl());
-			Slideshow s = slideshowDao.selectOne(qw);
-			if (s != null)
-				throw new ServiceException(ResultCode.SLIDESHOW_URL_EXISTED);
+		Integer id = slideshow.getId();
 
-			// 重置图片url更新时间
-			slideshow.setUploadTime(LocalDateTime.now());
+		//1.判断轮播图url是否唯一
+		String url = slideshow.getUrl();
+		//url唯一标识
+		boolean flag = false;
+		if (url != null) {
+			//判断是否是原来的轮播图url
+			if(id != null) {
+				Slideshow oldSlideshow = slideshowDao.selectById(id);
+				if(oldSlideshow != null && url.equals(oldSlideshow.getUrl())) {
+					flag = true;
+				}
+			}
+
+			//判断url是否唯一
+			if(flag == false) {
+				LambdaQueryWrapper<Slideshow> qw = new LambdaQueryWrapper<>();
+				qw.eq(Slideshow::getUrl, url);
+				Slideshow s = slideshowDao.selectOne(qw);
+				if (s != null)
+					throw new ServiceException(ResultCode.SLIDESHOW_URL_EXISTED);
+
+				// 重置图片url更新时间
+				slideshow.setUploadTime(LocalDateTime.now());
+			}
 		}
 
-		if (slideshow.getId() == null) {
+		if (id == null) {
 			//2.新增操作
 			if (slideshow.getStatus() == null)
 				slideshow.setStatus("启用");
@@ -57,7 +73,7 @@ public class SlideshowServiceImpl implements ISlideshowService {
 		} else {
 			//3.更新操作
 			//3.1 判断当前轮播图是否有效
-			Slideshow s = slideshowDao.selectById(slideshow.getId());
+			Slideshow s = slideshowDao.selectById(id);
 			if (s == null)
 				throw new ServiceException(ResultCode.SLIDESHOW_NOT_EXISTED);
 

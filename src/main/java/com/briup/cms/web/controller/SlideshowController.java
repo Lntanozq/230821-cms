@@ -35,7 +35,7 @@ public class SlideshowController {
 		return Result.success(slideshowService.queryOneById(id));
 	}
 
-	@ApiOperation(value = "保存或更新轮播图", notes = "slideshow参数包含id值则为更新，不包含i为新增")
+	@ApiOperation(value = "新增或更新轮播图", notes = "slideshow参数包含id值则为更新，不包含i为新增")
 	@PostMapping("/saveOrUpdate")
 	public Result saveOrUpdate(@RequestBody Slideshow slideshow) {
 		slideshowService.saveOrUpdate(slideshow);
