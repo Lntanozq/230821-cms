@@ -27,13 +27,11 @@ public class DeletedConverter implements Converter<Integer> {
 	}
 
 	/**
-	 * 开启对Integer的支持
-	 *
-	 * @return CellDataTypeEnum.NUMBER
+	 * Excel文件中单元格的数据类型-String
 	 */
 	@Override
 	public CellDataTypeEnum supportExcelTypeKey() {
-		return CellDataTypeEnum.NUMBER;
+		return CellDataTypeEnum.STRING;
 	}
 
 	/**
