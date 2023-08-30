@@ -213,6 +213,7 @@ public class ArticleServiceImpl implements IArticleService {
 
 		// 10.浏览量自增
 		articleExtend.setReadNum(redisUtil.increment(REDIS_KEY, article.getId().toString()));
+		System.out.println("浏览量: " + articleExtend.getReadNum());
 
 		return articleExtend;
 	}
@@ -308,6 +309,20 @@ public class ArticleServiceImpl implements IArticleService {
 
 			ArticleExtend articleExtend = new ArticleExtend();
 			BeanUtils.copyProperties(art, articleExtend);
+
+			//从redis中获取浏览量 更新对象属性值
+			//1.先查看redis中是否存在文章浏览量，如果没有则写入
+			Object obj = redisUtil.getHash(REDIS_KEY)
+					.get(articleExtend.getId().toString());
+			if(obj == null) {
+				redisUtil.hset(REDIS_KEY, articleExtend.getId().toString(), articleExtend.getReadNum());
+			}
+			//2.从redis中获取文章浏览量
+			Integer readNum = (Integer) redisUtil.getHash(REDIS_KEY)
+										.get(articleExtend.getId().toString());
+			//System.out.println("in page, read obj: " + obj);
+			articleExtend.setReadNum(readNum);
+
 			//额外注释密码，不能返回给前端
 			user.setPassword(null);
 			articleExtend.setAuthor(user);

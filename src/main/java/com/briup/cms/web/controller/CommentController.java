@@ -83,7 +83,7 @@ public class CommentController {
             @ApiImplicitParam(name = "pageSize", value = "每页数量", dataType = "int", required = true, paramType = "query", defaultValue = "4"),
             @ApiImplicitParam(name = "id", value = "文章id", dataType = "long", required = true, paramType = "path")
     })
-    @Logging("根据文章id查询文章")
+    //@Logging("根据文章id查询评论")
     @GetMapping("/queryByArticleId/{id}")
     public Result queryByArticleId(Integer pageNum, Integer pageSize, @PathVariable Long id) {
         IPage<CommentExtend> page = commentService.queryByArticleId(pageNum, pageSize, id);
