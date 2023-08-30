@@ -59,6 +59,7 @@ public class LogServiceImpl implements ILogService {
 			Result result = gson.fromJson(logVO.getResultJson(), Result.class);
 			logVO.setCode(result.getCode());
 			logVO.setMsg(result.getMsg());
+			logVO.setResultJson(null);
 		});
 
 		return logVOPage;
