@@ -66,17 +66,12 @@ public class ExcelUtils {
 			readerBuilder.registerConverter(converter);
 		}
 
-
-		List<T> list = readerBuilder
-				//导入数据的sheet页编号，0代表第一个sheet页，如果不填，则会导入所有sheet页的数据
-				.sheet()
+		//读取 所有sheet页的数据
+		return readerBuilder
 				//列表头行数，1代表列表头有1行，第二行开始为数据行
 				.headRowNumber(1)
 				//开始读Excel，返回一个List<T>集合，继续后续入库操作
-				.doReadSync();
-
-
-		return list;
+				.doReadAllSync();
 	}
 
 	/**
