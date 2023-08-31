@@ -29,6 +29,7 @@ public class SlideshowController {
 	@Autowired
 	private ISlideshowService slideshowService;
 
+	//user端使用
 	@ApiOperation(value = "查询所有可用的轮播图")
 	@GetMapping("/queryAllEnable")
 	public Result queryAllEnable() {
@@ -37,6 +38,7 @@ public class SlideshowController {
 		return Result.success(list);
 	}
 
+	//admin使用
 	//第几页 每页数量 status 描述
 	@ApiOperation(value = "条件+分页查询轮播图")
 	@ApiImplicitParams({
@@ -51,12 +53,14 @@ public class SlideshowController {
 		return Result.success(p);
 	}
 
+	//admin使用
 	@ApiOperation(value = "根据id查询轮播图信息",notes = "用于更新时的数据回显")
 	@GetMapping("/queryById/{id}")
 	public Result queryById(@PathVariable("id") Integer id) {
 		return Result.success(slideshowService.queryById(id));
 	}
 
+	//admin使用
 	@ApiOperation(value = "新增或更新轮播图", notes = "slideshow参数包含id值则为更新，不包含i为新增")
 	@PostMapping("/saveOrUpdate")
 	public Result saveOrUpdate(@RequestBody Slideshow slideshow) {
@@ -64,6 +68,7 @@ public class SlideshowController {
 		return Result.success("操作成功");
 	}
 
+	//admin使用
 	@ApiOperation(value = "批量删除轮播图", notes = "需要提供多个id值")
 	@DeleteMapping("/deleteByBatch/{ids}")
 	public Result deleteSlideshowInBatch(@PathVariable("ids") List<Integer> ids) {

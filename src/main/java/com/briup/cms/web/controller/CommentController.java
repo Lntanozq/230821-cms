@@ -91,6 +91,7 @@ public class CommentController {
         return Result.success(page);
     }
 
+    //admin端，只需要用到该接口
     @ApiOperation(value = "分页+条件查询", notes = "查询条件：关键字、userId、articleId、发表时间范围")
     @Logging("分页查询评论信息")
     @PostMapping("/query")

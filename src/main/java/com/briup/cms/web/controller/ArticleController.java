@@ -47,7 +47,8 @@ public class ArticleController {
 			@ApiImplicitParam(name = "id", value = "文章id", required = true, dataType = "String"), //body query ??
 			@ApiImplicitParam(name = "status", value = "审核状态", required = true, dataType = "String")
 	})
-	@PostMapping("/reviewArticle")
+	//@PostMapping("/reviewArticle")
+	@PutMapping("/review")
 	public Result reviewArticle(Long id, String status) {
 		articleService.reviewArticle(id, status);
 
@@ -55,7 +56,8 @@ public class ArticleController {
 	}
 
 	@ApiOperation(value = "根据id批量删除文章", notes = "id必须存在且有效")
-	@DeleteMapping("/deleteById/{ids}")
+	//@DeleteMapping("/deleteById/{ids}")
+	@DeleteMapping("/deleteByBatch/{ids}")
 	public Result deleteInBatch(@PathVariable("ids") List<Long> ids) {
 		articleService.deleteInBatch(ids);
 
@@ -80,7 +82,8 @@ public class ArticleController {
 	}
 
 	@ApiOperation("查询所有文章")
-	@GetMapping("/getAllArticle")
+	//@GetMapping("/getAllArticle")
+	@GetMapping("/getAll")
 	public Result getAllArticle(){
 		return Result.success(articleService.list());
 	}

@@ -26,8 +26,9 @@ public class UploadController {
 	private UploadUtils uploadUtils;
 
 	@ApiOperation("文件上传")
-	@PostMapping("/upload")
-	@SneakyThrows
+	//@PostMapping("/upload")
+	@PostMapping("/auth/upload")
+	@SneakyThrows  //帮助处理 编译时异常
 	public Result upload(@RequestPart MultipartFile img){
 		return Result.success(uploadUtils.fileToOSS(img));
 	}

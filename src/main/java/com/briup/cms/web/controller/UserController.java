@@ -33,6 +33,7 @@ public class UserController {
     @Autowired
     private IUserService userService;
 
+    //admin使用：用户登录后首页展示个人信息需要使用
     @ApiOperation("获取用户个人信息")
     @GetMapping("/info")
     public Result getInfo(@RequestAttribute("userId") Long id){
@@ -40,6 +41,7 @@ public class UserController {
         return Result.success(userService.queryById(id));
     }
 
+    //admin使用
     @ApiOperation(value = "新增用户", notes = "username、password必须存在不为空，且username唯一")
     @PostMapping("/save")
     public Result save(@RequestBody User user) {
@@ -49,6 +51,7 @@ public class UserController {
         return Result.success("新增成功");
     }
 
+    //user端使用
     @ApiOperation(value = "设置用户为Vip", notes = "id存在且有效")
     @PutMapping("/setVip/{id}")
     public Result setVip(@PathVariable Long id) {
@@ -57,6 +60,7 @@ public class UserController {
         return Result.success("设置成功");
     }
 
+    //admin使用
     @ApiOperation(value = "更新用户信息", notes = "id必须存在且有效，如果username存在则必须唯一")
     @PutMapping("/update")
     public Result update(@RequestBody User user) {
@@ -86,6 +90,7 @@ public class UserController {
         return Result.success(user);
     }
 
+    //资讯模块需要使用
     @ApiOperation(value = "查询全部用户", notes = "id必须存在且有效")
     @GetMapping("/getAllUser")
     public Result getAllUser() {
@@ -93,6 +98,7 @@ public class UserController {
         return Result.success(allUser);
     }
 
+    //admin使用
     @ApiOperation(value = "分页+条件查询用户", notes = "用户中要含角色信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageNum", value = "页码", required = true, dataType = "int", paramType = "query"),
