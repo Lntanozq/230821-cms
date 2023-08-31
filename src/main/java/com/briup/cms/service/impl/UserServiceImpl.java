@@ -112,7 +112,7 @@ public class UserServiceImpl implements IUserService {
 	}
 
 	@Override
-	public void deleteByBatch(List ids) {
+	public void deleteByBatch(List<Long> ids) {
 		//1.有效参数判断
 		if (ids == null || ids.isEmpty()) {
 			throw new ServiceException(ResultCode.PARAM_IS_BLANK);

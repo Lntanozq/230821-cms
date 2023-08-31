@@ -17,8 +17,10 @@ import org.apache.ibatis.annotations.Param;
 public interface UserDao extends BaseMapper<User> {
 
     //分页+条件查询用户(含角色)
-    IPage<UserExtend> queryAllUserWithRole(IPage<UserExtend> page, @Param("username") String username,
-                                           @Param("status") String status, @Param("roleId") Integer roleId,
+    IPage<UserExtend> queryAllUserWithRole(IPage<UserExtend> page,
+                                           @Param("username") String username,
+                                           @Param("status") String status,
+                                           @Param("roleId") Integer roleId,
                                            @Param("isVip") Integer isVip);
 
     User queryUserById(@Param("id") Long id);

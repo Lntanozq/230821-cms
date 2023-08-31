@@ -66,8 +66,9 @@ public class UserController {
     }
 
     @ApiOperation(value = "根据id删除用户", notes = "id必须存在且有效")
-    @DeleteMapping("/deleteById/{ids}")
-    public Result deleteByBatch(@PathVariable("ids") List ids) {
+    //@DeleteMapping("/deleteById/{ids}")
+    @DeleteMapping("/deleteByBatch/{ids}")
+    public Result deleteByBatch(@PathVariable("ids") List<Long> ids) {
         userService.deleteByBatch(ids);
 
         return Result.success("删除成功");
