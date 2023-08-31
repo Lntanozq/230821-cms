@@ -52,15 +52,11 @@ public class LogServiceImpl implements ILogService {
 		// 3.执行分页查询
 		logDao.selectPage(page, wrapper);
 
+		// 前端展示时所需的参数有限,所以在返回前将 将Log分页对象 转换为 LogVO分页对象
 		IPage<LogVO> logVOPage = BeanCopyUtils.copyPage(page, LogVO.class);
-		//转换 resultJson 拆分成 code 及 msg
 
-		logVOPage.getRecords().forEach(logVO -> {
-			Result result = gson.fromJson(logVO.getResultJson(), Result.class);
-			logVO.setCode(result.getCode());
-			logVO.setMsg(result.getMsg());
-			logVO.setResultJson(null);
-		});
+		//前端展示无需转换ResultJson中的data数据,所以resultJson 拆分成 code 及 msg
+		parseResultJson(logVOPage.getRecords());
 
 		return logVOPage;
 	}
@@ -78,17 +74,25 @@ public class LogServiceImpl implements ILogService {
 		//设置日志导出条数
 		wrapper.last(Objects.nonNull(param.getCount()), "limit " + param.getCount());
 
+		//根据条件获取数据
 		List<Log> logList = logDao.selectList(wrapper);
+
+		//Bean拷贝
 		List<LogVO> logVOList = BeanCopyUtils.copyBeanList(logList, LogVO.class);
 
 		//转换 resultJson 拆分成 code 及 msg
-		logVOList.forEach(logVO -> {
+		parseResultJson(logVOList);
+
+		return logVOList;
+	}
+
+	private void parseResultJson(List<LogVO> list){
+		list.forEach(logVO -> {
 			Result result = gson.fromJson(logVO.getResultJson(), Result.class);
 			logVO.setCode(result.getCode());
 			logVO.setMsg(result.getMsg());
+			logVO.setResultJson(null);
 		});
-
-		return logVOList;
 	}
 
 	private LambdaQueryWrapper<Log> getQueryWrapper(String username, String url, LocalDateTime startTime, LocalDateTime endTime) {

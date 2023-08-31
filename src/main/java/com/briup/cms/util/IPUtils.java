@@ -79,6 +79,10 @@ public class IPUtils {
 		return ip;
 	}
 
+	/**
+	 * 根据IP地址,解析该IP,获取基础信息
+	 * 调用sendGet()方法 解析ip地址
+	 */
 	private static Ip getIp(String ipAddress) {
 		Ip ip = new Ip();
 		try {
