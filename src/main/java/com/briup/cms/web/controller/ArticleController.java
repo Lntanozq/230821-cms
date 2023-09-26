@@ -32,7 +32,7 @@ public class ArticleController {
 	@Autowired
 	private IArticleService articleService;
 
-	@ApiOperation(value = "新增或修改文章", notes = "文章id存在为修改，不存在为新增")
+	@ApiOperation(value = "新增或修改文章", notes = "文章id存在则修改，不存在为新增")
 	@PostMapping("/saveOrUpdate")
 	//public Result saveOrUpdate(@RequestBody Article article, //第一种方式获取token
 	//                           @RequestHeader(value = "token", required = false) String token) {
